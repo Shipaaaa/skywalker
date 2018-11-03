@@ -5,7 +5,6 @@ package domain.utils
  */
 fun String.getFileExtension(): String {
     val lastIndexOf = this.lastIndexOf(".")
-
     return if (lastIndexOf == -1) {
         ""
     } else {

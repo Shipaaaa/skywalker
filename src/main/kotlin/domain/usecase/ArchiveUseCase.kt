@@ -9,6 +9,5 @@ interface ArchiveUseCase {
 
     fun zipFile(file: FileEntity)
 
-    fun unzipFile(fileName: String): FileEntity
-
+    fun unzipFile(fileName: String): FileEntity?
 }

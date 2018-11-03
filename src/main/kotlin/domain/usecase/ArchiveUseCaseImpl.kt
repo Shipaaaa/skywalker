@@ -10,13 +10,13 @@ import domain.utils.getFileExtension
 class ArchiveUseCaseImpl(
     private val firstCacheRepository: CacheRepository,
     private val secondCacheRepository: CacheRepository
-) {
+) : ArchiveUseCase {
 
-    fun zipFile(file: FileEntity) {
+    override fun zipFile(file: FileEntity) {
         getRepo(file.name).saveFile(file)
     }
 
-    fun unzipFile(fileName: String): FileEntity {
+    override fun unzipFile(fileName: String): FileEntity? {
         return getRepo(fileName).loadFile(fileName)
     }
 

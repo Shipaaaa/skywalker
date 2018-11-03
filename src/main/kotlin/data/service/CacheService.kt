@@ -1,11 +1,12 @@
-package data.repository
+package data.service
 
 import domain.entity.FileEntity
+import org.apache.ignite.services.Service
 
 /**
- * Created by v.shipugin on 15/09/2018
+ * Created by v.shipugin on 03/11/2018
  */
-interface CacheRepository {
+interface CacheService : Service {
 
     fun saveFile(file: FileEntity)
 

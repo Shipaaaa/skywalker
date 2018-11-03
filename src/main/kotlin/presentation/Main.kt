@@ -18,22 +18,21 @@ class Main {
 
     private val archiveUseCase by lazy {
         ArchiveUseCaseImpl(
-                FirstCacheRepositoryImpl(),
-                SecondCacheRepositoryImpl()
+            FirstCacheRepositoryImpl(),
+            SecondCacheRepositoryImpl()
         )
     }
 
     private val scanner by lazy { Scanner(System.`in`) }
 
     fun work() {
-        println("Hello!\n" +
-                "I'm Skywalker"
-        )
+        println("Hello!\nI'm Skywalker")
 
-        println("Menu:\n" +
-                "Enter 1 for save file\n" +
-                "Enter 2 for load file\n" +
-                "Enter 0 for exit"
+        println(
+            "Menu:\n" +
+                    "Enter 1 for save file\n" +
+                    "Enter 2 for load file\n" +
+                    "Enter 0 for exit"
         )
 
         println("Choose menu item:")
@@ -64,7 +63,7 @@ class Main {
         println("Saving file: $fileName")
 
         archiveUseCase.zipFile(
-                FileEntity(fileName, filePath)
+            FileEntity(fileName, filePath)
         )
     }
 
@@ -75,9 +74,7 @@ class Main {
         println("Loading file: $fileName")
         val file = archiveUseCase.unzipFile(fileName)
 
-        println("File mame: ${file.name}.\n" +
-                "File path: ${file.path}."
-        )
+        println("File mame: ${file.name}.\nFile path: ${file.path}.")
     }
 
     enum class Menu(val number: Int) {

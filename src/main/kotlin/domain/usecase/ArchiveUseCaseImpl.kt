@@ -8,8 +8,8 @@ import domain.utils.getFileExtension
  * Created by v.shipugin on 15/09/2018
  */
 class ArchiveUseCaseImpl(
-        private val firstCacheRepository: CacheRepository,
-        private val secondCacheRepository: CacheRepository
+    private val firstCacheRepository: CacheRepository,
+    private val secondCacheRepository: CacheRepository
 ) {
 
     fun zipFile(file: FileEntity) {

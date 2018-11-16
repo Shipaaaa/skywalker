@@ -1,16 +1,14 @@
 import core.utils.Logger
 import data.repository.FirstCacheRepositoryImpl
 import data.repository.SecondCacheRepositoryImpl
-import data.service.FirstCacheService
-import data.service.SecondCacheService
 import domain.usecase.ArchiveUseCase
 import domain.usecase.ArchiveUseCaseImpl
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.configuration.IgniteConfiguration
-import org.apache.ignite.services.ServiceConfiguration
 import presentation.ConsoleView
 import java.util.*
+
 
 /**
  * Created by v.shipugin on 03/11/2018
@@ -25,26 +23,9 @@ class Initializer {
     }
 
     fun initIgnite() {
-        // TODO Поправить конфигурацию
-        val firstServiceConfiguration = ServiceConfiguration().apply {
-            name = FirstCacheService.TAG
-            service = FirstCacheService()
-            maxPerNodeCount = 1
-        }
-
-        // TODO Поправить конфигурацию
-        val secondServiceConfiguration = ServiceConfiguration().apply {
-            name = SecondCacheService.TAG
-            service = SecondCacheService()
-            maxPerNodeCount = 1
-        }
-
-        // TODO Поправить конфигурацию. Очень много предупреждений
         val igniteCfg = IgniteConfiguration().apply {
-            setServiceConfiguration(
-                firstServiceConfiguration,
-                secondServiceConfiguration
-            )
+            isPeerClassLoadingEnabled = true
+            isClientMode = true
         }
 
         ignite = Ignition.start(igniteCfg)

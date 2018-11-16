@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/skywalker.iml" filepath="$PROJECT_DIR$/skywalker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/skywalker-client/skywalker-client.iml" filepath="$PROJECT_DIR$/skywalker-client/skywalker-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/skywalker-server/skywalker-server.iml" filepath="$PROJECT_DIR$/skywalker-server/skywalker-server.iml" />
     </modules>
   </component>
 </project>

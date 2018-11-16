@@ -5,9 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.shipa</groupId>
-    <artifactId>skywalker</artifactId>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>ru.shipa</groupId>
+        <artifactId>skywalker</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>skywalker-server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -18,11 +21,6 @@
 
         <ignite.version>2.6.0</ignite.version>
     </properties>
-
-    <modules>
-        <module>skywalker-client</module>
-        <module>skywalker-server</module>
-    </modules>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -85,6 +83,12 @@
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-core</artifactId>
             <version>${ignite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.shipa</groupId>
+            <artifactId>skywalker</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

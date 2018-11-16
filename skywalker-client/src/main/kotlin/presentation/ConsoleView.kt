@@ -24,7 +24,7 @@ class ConsoleView(
         )
 
         showMessage("Choose menu item:")
-        var pick = scanner.nextInt()
+        var pick = scanner.next().toIntOrNull() ?: UNKNOWN.number
 
         while (pick != EXIT.number) {
 
@@ -35,7 +35,7 @@ class ConsoleView(
             }
 
             showMessage("Choose menu item:")
-            pick = scanner.nextInt()
+            pick = scanner.next().toIntOrNull() ?: UNKNOWN.number
         }
 
         showMessage("Goodbye!")

@@ -28,35 +28,9 @@ class ServerInitializer {
 
     fun initIgnite() {
 
-        val lzOCacheService = ServiceConfiguration().apply {
-            name = LZOCacheService.TAG
-            cacheName = CACHE_NAME
-            service = LZOCacheService()
-            maxPerNodeCount = 1
-        }
-
-        val lz4CacheService = ServiceConfiguration().apply {
-            name = LZ4CacheService.TAG
-            cacheName = CACHE_NAME
-            service = LZ4CacheService()
-            maxPerNodeCount = 1
-        }
-
-        val snappyCacheService = ServiceConfiguration().apply {
-            name = SnappyCacheService.TAG
-            cacheName = CACHE_NAME
-            service = SnappyCacheService()
-            maxPerNodeCount = 1
-        }
-
         // TODO Поправить конфигурацию. Очень много предупреждений
         val igniteCfg = IgniteConfiguration().apply {
             isPeerClassLoadingEnabled = true
-            setServiceConfiguration(
-                lzOCacheService,
-                lz4CacheService,
-                snappyCacheService
-            )
         }
 
         val cacheCfg = CacheConfiguration<String, String>(CACHE_NAME).apply {
@@ -64,13 +38,36 @@ class ServerInitializer {
             atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
+        val lzoCacheServiceConfiguration = ServiceConfiguration().apply {
+            name = LZOCacheService.TAG
+            cacheName = CACHE_NAME
+            service = LZOCacheService()
+            maxPerNodeCount = 1
+        }
+
+        val lz4CacheServiceConfiguration = ServiceConfiguration().apply {
+            name = LZ4CacheService.TAG
+            cacheName = CACHE_NAME
+            service = LZ4CacheService()
+            maxPerNodeCount = 1
+        }
+
+        val snappyCacheServiceConfiguration = ServiceConfiguration().apply {
+            name = SnappyCacheService.TAG
+            cacheName = CACHE_NAME
+            service = SnappyCacheService()
+            maxPerNodeCount = 1
+        }
+
         ignite = Ignition.start(igniteCfg).apply {
             getOrCreateCache(cacheCfg)
+            services().deployAll(
+                listOf(
+                    lzoCacheServiceConfiguration,
+                    lz4CacheServiceConfiguration,
+                    snappyCacheServiceConfiguration
+                )
+            )
         }
-    }
-
-    // TODO It is necessary?
-    fun destroyIgnite() {
-        Ignition.stopAll(true)
     }
 }

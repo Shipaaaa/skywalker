@@ -33,7 +33,7 @@ class ClientInitializer {
     }
 
     fun destroyIgnite() {
-        Ignition.stopAll(true)
+        Ignition.stop(ignite.name(), false)
     }
 
     fun startApp() {

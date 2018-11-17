@@ -11,29 +11,25 @@ import org.apache.ignite.services.ServiceContext
  */
 abstract class BaseCacheService : CacheService {
 
-    companion object {
-        private const val CACHE_NAME = "skywalker_archive_service"
-    }
-
     @IgniteInstanceResource
     private lateinit var ignite: Ignite
 
     private lateinit var igniteCache: IgniteCache<String, String>
 
-    private var name: String? = null
+    private lateinit var serviceName: String
 
     override fun init(serviceContext: ServiceContext) {
-        igniteCache = ignite.getOrCreateCache(CACHE_NAME)
+        serviceName = serviceContext.name()
 
-        name = serviceContext.name()
-    }
-
-    override fun cancel(serviceContext: ServiceContext) {
-        // TODO something?
+        igniteCache = ignite.getOrCreateCache(serviceContext.cacheName())
     }
 
     override fun execute(serviceContext: ServiceContext) {
-        // TODO something?
+        // Do nothing
+    }
+
+    override fun cancel(serviceContext: ServiceContext) {
+        // Do nothing
     }
 
     override fun saveFile(file: FileEntity) {
@@ -51,6 +47,6 @@ abstract class BaseCacheService : CacheService {
     }
 
     private fun calculateFileKey(fileName: String): String {
-        return name + fileName
+        return serviceName + fileName
     }
 }

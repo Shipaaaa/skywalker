@@ -1,6 +1,7 @@
 import core.utils.Logger
-import data.service.FirstCacheService
-import data.service.SecondCacheService
+import data.service.LZ4CacheService
+import data.service.LZOCacheService
+import data.service.SnappyCacheService
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.configuration.IgniteConfiguration
@@ -9,7 +10,7 @@ import org.apache.ignite.services.ServiceConfiguration
 /**
  * Created by v.shipugin on 03/11/2018
  */
-class Initializer {
+class ServerInitializer {
 
     private lateinit var ignite: Ignite
 
@@ -19,17 +20,22 @@ class Initializer {
     }
 
     fun initIgnite() {
-        // TODO Поправить конфигурацию
-        val firstServiceConfiguration = ServiceConfiguration().apply {
-            name = FirstCacheService.TAG
-            service = FirstCacheService()
+
+        val lzOCacheService = ServiceConfiguration().apply {
+            name = LZOCacheService.TAG
+            service = LZOCacheService()
             maxPerNodeCount = 1
         }
 
-        // TODO Поправить конфигурацию
-        val secondServiceConfiguration = ServiceConfiguration().apply {
-            name = SecondCacheService.TAG
-            service = SecondCacheService()
+        val lz4CacheService = ServiceConfiguration().apply {
+            name = LZ4CacheService.TAG
+            service = LZ4CacheService()
+            maxPerNodeCount = 1
+        }
+
+        val snappyCacheService = ServiceConfiguration().apply {
+            name = SnappyCacheService.TAG
+            service = SnappyCacheService()
             maxPerNodeCount = 1
         }
 
@@ -37,8 +43,9 @@ class Initializer {
         val igniteCfg = IgniteConfiguration().apply {
             isPeerClassLoadingEnabled = true
             setServiceConfiguration(
-                firstServiceConfiguration,
-                secondServiceConfiguration
+                lzOCacheService,
+                lz4CacheService,
+                snappyCacheService
             )
         }
 

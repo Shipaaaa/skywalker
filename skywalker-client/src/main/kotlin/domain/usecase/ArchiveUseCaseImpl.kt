@@ -8,8 +8,9 @@ import domain.utils.getFileExtension
  * Created by v.shipugin on 15/09/2018
  */
 class ArchiveUseCaseImpl(
-    private val firstCacheRepository: CacheRepository,
-    private val secondCacheRepository: CacheRepository
+    private val lzOCacheService: CacheRepository,
+    private val lz4CacheService: CacheRepository,
+    private val snappyCacheService: CacheRepository
 ) : ArchiveUseCase {
 
     override fun zipFile(file: FileEntity) {
@@ -23,13 +24,9 @@ class ArchiveUseCaseImpl(
     private fun getRepo(fileName: String): CacheRepository {
         return when (fileName.getFileExtension()) {
             "txt",
-            "exe",
-            "png" -> {
-                firstCacheRepository
-            }
-            else -> {
-                secondCacheRepository
-            }
+            "exe" -> lzOCacheService
+            "png" -> lz4CacheService
+            else -> snappyCacheService
         }
     }
 }

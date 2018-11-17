@@ -6,15 +6,13 @@ import org.apache.ignite.IgniteCache
 import org.apache.ignite.resources.IgniteInstanceResource
 import org.apache.ignite.services.ServiceContext
 
-
 /**
  * Created by v.shipugin on 03/11/2018
  */
-class SecondCacheService : CacheService {
+abstract class BaseCacheService : CacheService {
 
     companion object {
-        const val TAG = "SecondCacheService"
-        private const val CACHE_NAME = "second_skywalker_archive"
+        private const val CACHE_NAME = "skywalker_archive_service"
     }
 
     @IgniteInstanceResource

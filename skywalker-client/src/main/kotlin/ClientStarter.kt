@@ -3,7 +3,7 @@
  */
 
 fun main(args: Array<String>) {
-    with(Initializer()) {
+    with(ClientInitializer()) {
         initLogger()
         initIgnite()
         startApp()

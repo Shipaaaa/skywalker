@@ -1,6 +1,7 @@
 import core.utils.Logger
-import data.repository.FirstCacheRepositoryImpl
-import data.repository.SecondCacheRepositoryImpl
+import data.repository.LZ4CacheRepositoryImpl
+import data.repository.LZOCacheRepositoryImpl
+import data.repository.SnappyCacheRepositoryImpl
 import domain.usecase.ArchiveUseCase
 import domain.usecase.ArchiveUseCaseImpl
 import org.apache.ignite.Ignite
@@ -13,7 +14,7 @@ import java.util.*
 /**
  * Created by v.shipugin on 03/11/2018
  */
-class Initializer {
+class ClientInitializer {
 
     private lateinit var ignite: Ignite
 
@@ -39,8 +40,9 @@ class Initializer {
         // TODO Перенести в service locator
         val archiveUseCase: ArchiveUseCase by lazy {
             ArchiveUseCaseImpl(
-                FirstCacheRepositoryImpl(ignite),
-                SecondCacheRepositoryImpl(ignite)
+                LZOCacheRepositoryImpl(ignite),
+                LZ4CacheRepositoryImpl(ignite),
+                SnappyCacheRepositoryImpl(ignite)
             )
         }
 

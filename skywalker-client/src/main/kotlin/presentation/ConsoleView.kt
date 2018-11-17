@@ -14,13 +14,13 @@ class ConsoleView(
 ) {
 
     fun showMenu() {
-        showMessage("Hello!\nI'm Skywalker")
+        showMessage("Hello!\nI'm Skywalker\n\n")
 
         showMessage(
             "Menu:\n" +
                     "Enter 1 for save file\n" +
                     "Enter 2 for load file\n" +
-                    "Enter 0 for exit"
+                    "Enter 0 for exit\n\n"
         )
 
         showMessage("Choose menu item:")
@@ -38,42 +38,53 @@ class ConsoleView(
             pick = scanner.next().toIntOrNull() ?: UNKNOWN.number
         }
 
-        showMessage("Goodbye!")
+        showMessage("Goodbye!\n\n")
     }
 
     private fun saveFile() {
-        showMessage("Enter file name:")
+        showMessage("\n|================================================|")
+        showMessage("| Your have chosen to save the file.")
+        showMessage("| Enter file name:")
         val fileName = scanner.next()
 
-        showMessage("Enter file path:")
+        showMessage("| Enter file path:")
         val filePath = scanner.next()
 
-        showMessage("Saving file: $fileName")
+        showMessage("| Saving file: $fileName\n| ")
 
         archiveUseCase.zipFile(
             FileEntity(fileName, filePath)
         )
+        showMessage("| File: $fileName saved successfully")
+        showMessage("|================================================|\n\n")
     }
 
     private fun load() {
-        showMessage("Enter file name:")
+        showMessage("\n|================================================|")
+        showMessage("| Your have chosen to load the file.")
+        showMessage("| Enter file name:")
         val fileName = scanner.next()
 
-        showMessage("Loading file: $fileName")
+        showMessage("| Loading file: $fileName\n| ")
         val file = archiveUseCase.unzipFile(fileName)
 
         if (file == null) {
-            showError("File: $fileName not found!")
+            showError("| File: $fileName not found!")
         } else {
-            showMessage("File mame: ${file.name}.\nFile path: ${file.path}.")
+            showMessage("| File mame: ${file.name}\n| File path: ${file.path}")
         }
+        showMessage("|================================================|\n\n")
     }
 
     private fun showMessage(message: String) {
+        System.err.flush()
         System.out.println(message)
+        System.out.flush()
     }
 
     private fun showError(message: String) {
+        System.out.flush()
         System.err.println(message)
+        System.err.flush()
     }
 }

@@ -2,6 +2,7 @@ package presentation
 
 import domain.usecase.CacheUseCase
 import presentation.model.MenuItems.*
+import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -12,6 +13,10 @@ class ConsoleView(
     private val scanner: Scanner,
     private val cacheUseCase: CacheUseCase
 ) {
+
+    companion object {
+        private const val IS_TXT_DEBUG_ENEBLED = true
+    }
 
     fun start() {
         showMessage("Hello!\nI'm Skywalker\n\n")
@@ -55,6 +60,14 @@ class ConsoleView(
         try {
             cacheUseCase.saveFile(fileName, filePath)
             showMessage("| File: $fileName saved successfully")
+
+            @Suppress("ConstantConditionIf")
+            if (IS_TXT_DEBUG_ENEBLED) {
+                showMessage("\n|================================================|")
+                showMessage("| File content")
+                showMessage(File(filePath).readText(Charsets.UTF_8))
+                showMessage("\n|================================================|")
+            }
         } catch (e: IOException) {
             showError("| File: $fileName not found!")
         }
@@ -75,6 +88,14 @@ class ConsoleView(
             showError("| File: $fileName not found!")
         } else {
             showMessage("| File mame: ${file.name}\n| File path: ${file.path}")
+            
+            @Suppress("ConstantConditionIf")
+            if (IS_TXT_DEBUG_ENEBLED) {
+                showMessage("\n|================================================|")
+                showMessage("| File content")
+                showMessage(String(file.fileEntity.blob))
+                showMessage("\n|================================================|")
+            }
         }
         showMessage("|================================================|\n\n")
     }

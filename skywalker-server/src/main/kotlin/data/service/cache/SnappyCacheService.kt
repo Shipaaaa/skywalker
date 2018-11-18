@@ -1,7 +1,10 @@
 package data.service.cache
 
-import data.service.cache.BaseCacheService
 import domain.entity.FileEntity
+import org.apache.commons.compress.compressors.CompressorStreamFactory
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+
 
 /**
  * Created by v.shipugin on 03/11/2018
@@ -13,12 +16,43 @@ class SnappyCacheService : BaseCacheService() {
     }
 
     override fun saveFile(file: FileEntity) {
-        // TODO Snappy pre-processing
-        super.saveFile(file)
+
+        val blobInputStream = ByteArrayInputStream(file.blob)
+
+        val resultOutputStream = ByteArrayOutputStream()
+        val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
+            CompressorStreamFactory.SNAPPY_FRAMED,
+            resultOutputStream.buffered()
+        )
+
+        blobInputStream.use { input ->
+            snappyOutputStream.use { snappyOutput ->
+                input.copyTo(snappyOutput)
+            }
+        }
+
+        val compressedBlob = resultOutputStream.toByteArray()
+
+        super.saveFile(FileEntity(file.name, compressedBlob))
     }
 
     override fun loadFile(fileName: String): FileEntity? {
-        return super.loadFile(fileName)
-        // TODO Snappy post-processing
+        val compressedFile = super.loadFile(fileName) ?: return null
+
+        val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
+        val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
+            CompressorStreamFactory.SNAPPY_FRAMED,
+            compressedOutputStream
+        )
+        
+        val resultOutputStream = ByteArrayOutputStream()
+
+        snappyInputStream.use { snappyInput ->
+            resultOutputStream.use { output ->
+                snappyInput.copyTo(output)
+            }
+        }
+
+        return FileEntity(compressedFile.name, resultOutputStream.toByteArray())
     }
 }

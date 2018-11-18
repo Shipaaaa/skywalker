@@ -2,10 +2,10 @@ package data.repository.archive
 
 import data.service.cache.CacheService
 import data.worker.callable.LZ4Callable
-import data.worker.callable.LZOCallable
+import data.worker.callable.BZip2Callable
 import data.worker.callable.SnappyCallable
 import data.worker.runnable.LZ4Runnable
-import data.worker.runnable.LZORunnable
+import data.worker.runnable.BZip2Runnable
 import data.worker.runnable.SnappyRunnable
 import domain.entity.CompressionType
 import domain.entity.FileEntity
@@ -21,7 +21,7 @@ class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
 
         val runnable = when (compressionType) {
             CompressionType.LZ4 -> LZ4Runnable(action)
-            CompressionType.LZO -> LZORunnable(action)
+            CompressionType.BZIP2 -> BZip2Runnable(action)
             CompressionType.SNAPPY -> SnappyRunnable(action)
         }
 
@@ -33,7 +33,7 @@ class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
 
         val callable = when (compressionType) {
             CompressionType.LZ4 -> LZ4Callable(action)
-            CompressionType.LZO -> LZOCallable(action)
+            CompressionType.BZIP2 -> BZip2Callable(action)
             CompressionType.SNAPPY -> SnappyCallable(action)
         }
 
@@ -45,7 +45,7 @@ class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
 
         val runnable = when (compressionType) {
             CompressionType.LZ4 -> LZ4Runnable(action)
-            CompressionType.LZO -> LZORunnable(action)
+            CompressionType.BZIP2 -> BZip2Runnable(action)
             CompressionType.SNAPPY -> SnappyRunnable(action)
         }
 

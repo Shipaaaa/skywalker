@@ -21,7 +21,7 @@ class CacheUseCaseImpl(
 
     @Throws(IOException::class)
     override fun saveFile(fileName: String, filePath: String) {
-        
+
         val file = File(filePath)
 
         val blob = Files.readAllBytes(file.toPath())
@@ -41,7 +41,7 @@ class CacheUseCaseImpl(
         // TODO Something?
         val fileEntity = archiveRepository.loadFileWithDecompression(fileName, fileMetadata.compressionType)
 
-        return LoadingFileResult(fileMetadata.fileName, fileMetadata.filePath)
+        return fileEntity?.let { LoadingFileResult(fileMetadata.fileName, fileMetadata.filePath, it) }
     }
 
     override fun deleteFile(fileName: String) {

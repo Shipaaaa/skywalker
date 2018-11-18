@@ -1,7 +1,7 @@
 package data.worker.callable
 
 import data.service.cache.CacheService
-import data.service.cache.LZOCacheService
+import data.service.cache.BZip2CacheService
 import domain.entity.FileEntity
 import org.apache.ignite.lang.IgniteCallable
 import org.apache.ignite.resources.ServiceResource
@@ -9,12 +9,12 @@ import org.apache.ignite.resources.ServiceResource
 /**
  * Created by v.shipugin on 18/11/2018
  */
-class LZOCallable(
+class BZip2Callable(
     private val action: (CacheService) -> FileEntity?
 ) : IgniteCallable<FileEntity> {
 
     // FIXME в анатации должна быть константа. Я не нашел как динамически менять значение в анатации.
-    @ServiceResource(serviceName = LZOCacheService.TAG)
+    @ServiceResource(serviceName = BZip2CacheService.TAG)
     private lateinit var cacheService: CacheService
 
     override fun call(): FileEntity? {

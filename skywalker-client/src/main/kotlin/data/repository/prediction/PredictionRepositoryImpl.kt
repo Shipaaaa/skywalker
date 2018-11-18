@@ -1,7 +1,6 @@
 package data.repository.prediction
 
 import domain.entity.CompressionType
-import domain.utils.getFileExtension
 
 /**
  * Created by v.shipugin on 18/11/2018
@@ -9,10 +8,10 @@ import domain.utils.getFileExtension
 class PredictionRepositoryImpl : PredictionRepository {
 
     override fun predictCompressionType(fileName: String): CompressionType {
-        return when (fileName.getFileExtension()) {
-            "txt",
-            "exe" -> CompressionType.LZO
-            "png" -> CompressionType.LZ4
+        return when (fileName) {
+            "lz4.txt" -> CompressionType.LZ4
+            "bzip2.txt" -> CompressionType.BZIP2
+            "snappy.txt" -> CompressionType.SNAPPY
             else -> CompressionType.SNAPPY
         }
     }

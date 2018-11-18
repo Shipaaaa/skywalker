@@ -1,6 +1,6 @@
 import core.utils.Logger
 import data.service.cache.LZ4CacheService
-import data.service.cache.LZOCacheService
+import data.service.cache.BZip2CacheService
 import data.service.cache.SnappyCacheService
 import data.service.metadata.MetadataServiceImpl
 import domain.entity.FileMetadataEntity
@@ -20,7 +20,7 @@ class ServerInitializer {
     companion object {
         private const val METADATA_CACHE_NAME = "skywalker_metadata_service"
 
-        private const val LZO_CACHE_NAME = "skywalker_lzo_cache_service"
+        private const val BZIP2_CACHE_NAME = "skywalker_bzip2_cache_service"
         private const val LZ4_CACHE_NAME = "skywalker_lz4_cache_service"
         private const val SNAPPY_CACHE_NAME = "skywalker_snappy_cache_service"
     }
@@ -55,16 +55,16 @@ class ServerInitializer {
         // endregion
 
 
-        // region LZO
-        val lzoCacheCfg = CacheConfiguration<String, String>(LZO_CACHE_NAME).apply {
+        // region BZIP2
+        val bZip2CacheCfg = CacheConfiguration<String, String>(BZIP2_CACHE_NAME).apply {
             cacheMode = CacheMode.REPLICATED
             atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
-        val lzoCacheServiceConfiguration = ServiceConfiguration().apply {
-            name = LZOCacheService.TAG
-            cacheName = LZO_CACHE_NAME
-            service = LZOCacheService()
+        val bZip2CacheServiceConfiguration = ServiceConfiguration().apply {
+            name = BZip2CacheService.TAG
+            cacheName = BZIP2_CACHE_NAME
+            service = BZip2CacheService()
             maxPerNodeCount = 1
         }
         // endregion
@@ -102,7 +102,7 @@ class ServerInitializer {
         ignite = Ignition.start(igniteCfg).apply {
             getOrCreateCache(metadataCacheCfg)
 
-            getOrCreateCache(lzoCacheCfg)
+            getOrCreateCache(bZip2CacheCfg)
             getOrCreateCache(lz4CacheCfg)
             getOrCreateCache(snappyCacheCfg)
 
@@ -110,7 +110,7 @@ class ServerInitializer {
                 listOf(
                     metadataServiceConfiguration,
 
-                    lzoCacheServiceConfiguration,
+                    bZip2CacheServiceConfiguration,
                     lz4CacheServiceConfiguration,
                     snappyCacheServiceConfiguration
                 )

@@ -5,6 +5,6 @@ package domain.entity
  */
 enum class CompressionType {
     LZ4,
-    LZO,
+    BZIP2,
     SNAPPY
 }

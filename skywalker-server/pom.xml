@@ -20,6 +20,8 @@
         <kotlin.version>1.3.10</kotlin.version>
 
         <ignite.version>2.6.0</ignite.version>
+
+        <apache.commons.compress.version>1.18</apache.commons.compress.version>
     </properties>
 
     <build>
@@ -67,6 +69,13 @@
     <dependencies>
 
         <dependency>
+            <groupId>ru.shipa</groupId>
+            <artifactId>skywalker</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
@@ -86,12 +95,10 @@
         </dependency>
 
         <dependency>
-            <groupId>ru.shipa</groupId>
-            <artifactId>skywalker</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${apache.commons.compress.version}</version>
         </dependency>
-
     </dependencies>
 
 </project>

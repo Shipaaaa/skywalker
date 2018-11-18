@@ -8,19 +8,18 @@ import java.io.ByteArrayOutputStream
 /**
  * Created by v.shipugin on 03/11/2018
  */
-class LZ4CacheService : BaseCacheService() {
+class BZip2CacheService : BaseCacheService() {
 
     companion object {
-        const val TAG = "LZ4CacheService"
+        const val TAG = "BZip2CacheService"
     }
 
     override fun saveFile(file: FileEntity) {
-
         val blobInputStream = ByteArrayInputStream(file.blob)
 
         val resultOutputStream = ByteArrayOutputStream()
         val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
-            CompressorStreamFactory.LZ4_FRAMED,
+            CompressorStreamFactory.BZIP2,
             resultOutputStream.buffered()
         )
 
@@ -40,7 +39,7 @@ class LZ4CacheService : BaseCacheService() {
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
         val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
-            CompressorStreamFactory.LZ4_FRAMED,
+            CompressorStreamFactory.BZIP2,
             compressedOutputStream
         )
 

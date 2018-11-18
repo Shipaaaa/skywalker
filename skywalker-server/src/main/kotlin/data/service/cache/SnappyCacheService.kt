@@ -1,5 +1,6 @@
-package data.service
+package data.service.cache
 
+import data.service.cache.BaseCacheService
 import domain.entity.FileEntity
 
 /**

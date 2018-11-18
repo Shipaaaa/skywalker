@@ -85,12 +85,14 @@
             <artifactId>ignite-core</artifactId>
             <version>${ignite.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ru.shipa</groupId>
             <artifactId>skywalker</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>ru.shipa</groupId>
             <artifactId>skywalker-server</artifactId>

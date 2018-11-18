@@ -1,23 +1,24 @@
-package data.service
+package data.service.cache
 
+import data.service.cache.BaseCacheService
 import domain.entity.FileEntity
 
 /**
  * Created by v.shipugin on 03/11/2018
  */
-class LZ4CacheService : BaseCacheService() {
+class LZOCacheService : BaseCacheService() {
 
     companion object {
-        const val TAG = "LZ4CacheService"
+        const val TAG = "LZOCacheService"
     }
 
     override fun saveFile(file: FileEntity) {
-        // TODO LZ4 pre-processing
+        // TODO LZO pre-processing
         super.saveFile(file)
     }
 
     override fun loadFile(fileName: String): FileEntity? {
         return super.loadFile(fileName)
-        // TODO LZ4 post-processing
+        // TODO LZO post-processing
     }
 }

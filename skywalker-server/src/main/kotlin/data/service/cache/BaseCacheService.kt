@@ -1,27 +1,28 @@
-package data.service
+package data.service.cache
 
 import domain.entity.FileEntity
 import org.apache.ignite.Ignite
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.resources.IgniteInstanceResource
 import org.apache.ignite.services.ServiceContext
+import java.util.*
 
 /**
  * Created by v.shipugin on 03/11/2018
  */
 abstract class BaseCacheService : CacheService {
 
+    private lateinit var name: String
+
     @IgniteInstanceResource
     private lateinit var ignite: Ignite
 
-    private lateinit var igniteCache: IgniteCache<String, String>
-
-    private lateinit var serviceName: String
+    private lateinit var cache: IgniteCache<String, String>
 
     override fun init(serviceContext: ServiceContext) {
-        serviceName = serviceContext.name()
+        name = serviceContext.name()
 
-        igniteCache = ignite.getOrCreateCache(serviceContext.cacheName())
+        cache = ignite.getOrCreateCache(serviceContext.cacheName())
     }
 
     override fun execute(serviceContext: ServiceContext) {
@@ -33,20 +34,20 @@ abstract class BaseCacheService : CacheService {
     }
 
     override fun saveFile(file: FileEntity) {
-        igniteCache.put(calculateFileKey(file.name), file.path)
+        val key = file.name
+        val encodedFile = Base64.getEncoder().encodeToString(file.blob)
+
+        cache.put(key, encodedFile)
     }
 
     override fun loadFile(fileName: String): FileEntity? {
-        return igniteCache
-            .get(calculateFileKey(fileName))
+        return cache
+            .get(fileName)
+            ?.let { Base64.getDecoder().decode(it) }
             ?.let { FileEntity(fileName, it) }
     }
 
     override fun deleteFile(fileName: String) {
-        igniteCache.remove(calculateFileKey(fileName))
-    }
-
-    private fun calculateFileKey(fileName: String): String {
-        return serviceName + fileName
+        cache.remove(fileName)
     }
 }

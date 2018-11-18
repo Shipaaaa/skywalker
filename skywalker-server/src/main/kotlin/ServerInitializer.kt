@@ -1,7 +1,9 @@
 import core.utils.Logger
-import data.service.LZ4CacheService
-import data.service.LZOCacheService
-import data.service.SnappyCacheService
+import data.service.cache.LZ4CacheService
+import data.service.cache.LZOCacheService
+import data.service.cache.SnappyCacheService
+import data.service.metadata.MetadataServiceImpl
+import domain.entity.FileMetadataEntity
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.cache.CacheAtomicityMode
@@ -16,7 +18,11 @@ import org.apache.ignite.services.ServiceConfiguration
 class ServerInitializer {
 
     companion object {
-        private const val CACHE_NAME = "skywalker_archive_service"
+        private const val METADATA_CACHE_NAME = "skywalker_metadata_service"
+
+        private const val LZO_CACHE_NAME = "skywalker_lzo_cache_service"
+        private const val LZ4_CACHE_NAME = "skywalker_lz4_cache_service"
+        private const val SNAPPY_CACHE_NAME = "skywalker_snappy_cache_service"
     }
 
     private lateinit var ignite: Ignite
@@ -33,36 +39,77 @@ class ServerInitializer {
             isPeerClassLoadingEnabled = true
         }
 
-        val cacheCfg = CacheConfiguration<String, String>(CACHE_NAME).apply {
+
+        // region Metadata
+        val metadataCacheCfg = CacheConfiguration<String, FileMetadataEntity>(METADATA_CACHE_NAME).apply {
+            cacheMode = CacheMode.REPLICATED
+            atomicityMode = CacheAtomicityMode.ATOMIC
+        }
+
+        val metadataServiceConfiguration = ServiceConfiguration().apply {
+            name = MetadataServiceImpl.TAG
+            cacheName = METADATA_CACHE_NAME
+            service = MetadataServiceImpl()
+            maxPerNodeCount = 1
+        }
+        // endregion
+
+
+        // region LZO
+        val lzoCacheCfg = CacheConfiguration<String, String>(LZO_CACHE_NAME).apply {
             cacheMode = CacheMode.REPLICATED
             atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
         val lzoCacheServiceConfiguration = ServiceConfiguration().apply {
             name = LZOCacheService.TAG
-            cacheName = CACHE_NAME
+            cacheName = LZO_CACHE_NAME
             service = LZOCacheService()
             maxPerNodeCount = 1
+        }
+        // endregion
+
+
+        // region Snappy
+        val lz4CacheCfg = CacheConfiguration<String, String>(LZ4_CACHE_NAME).apply {
+            cacheMode = CacheMode.REPLICATED
+            atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
         val lz4CacheServiceConfiguration = ServiceConfiguration().apply {
             name = LZ4CacheService.TAG
-            cacheName = CACHE_NAME
+            cacheName = LZ4_CACHE_NAME
             service = LZ4CacheService()
             maxPerNodeCount = 1
+        }
+        // endregion
+
+
+        // region Snappy
+        val snappyCacheCfg = CacheConfiguration<String, String>(SNAPPY_CACHE_NAME).apply {
+            cacheMode = CacheMode.REPLICATED
+            atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
         val snappyCacheServiceConfiguration = ServiceConfiguration().apply {
             name = SnappyCacheService.TAG
-            cacheName = CACHE_NAME
+            cacheName = SNAPPY_CACHE_NAME
             service = SnappyCacheService()
             maxPerNodeCount = 1
         }
+        // endregion
 
         ignite = Ignition.start(igniteCfg).apply {
-            getOrCreateCache(cacheCfg)
+            getOrCreateCache(metadataCacheCfg)
+
+            getOrCreateCache(lzoCacheCfg)
+            getOrCreateCache(lz4CacheCfg)
+            getOrCreateCache(snappyCacheCfg)
+
             services().deployAll(
                 listOf(
+                    metadataServiceConfiguration,
+
                     lzoCacheServiceConfiguration,
                     lz4CacheServiceConfiguration,
                     snappyCacheServiceConfiguration

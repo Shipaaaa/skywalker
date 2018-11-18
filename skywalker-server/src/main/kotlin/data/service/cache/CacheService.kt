@@ -1,4 +1,4 @@
-package data.service
+package data.service.cache
 
 import domain.entity.FileEntity
 import org.apache.ignite.services.Service

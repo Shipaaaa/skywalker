@@ -1,15 +1,13 @@
 import core.utils.Logger
-import data.repository.LZ4CacheRepositoryImpl
-import data.repository.LZOCacheRepositoryImpl
-import data.repository.SnappyCacheRepositoryImpl
-import domain.usecase.ArchiveUseCase
-import domain.usecase.ArchiveUseCaseImpl
+import data.repository.archive.ArchiveRepositoryImpl
+import data.repository.metadata.MetadataRepositoryImpl
+import data.repository.prediction.PredictionRepositoryImpl
+import domain.usecase.CacheUseCaseImpl
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.configuration.IgniteConfiguration
 import presentation.ConsoleView
 import java.util.*
-
 
 /**
  * Created by v.shipugin on 03/11/2018
@@ -37,18 +35,15 @@ class ClientInitializer {
     }
 
     fun startApp() {
-        // TODO Перенести в service locator
-        val archiveUseCase: ArchiveUseCase by lazy {
-            ArchiveUseCaseImpl(
-                LZOCacheRepositoryImpl(ignite),
-                LZ4CacheRepositoryImpl(ignite),
-                SnappyCacheRepositoryImpl(ignite)
+        val scanner by lazy { Scanner(System.`in`) }
+        val archiveUseCase by lazy {
+            CacheUseCaseImpl(
+                PredictionRepositoryImpl(),
+                MetadataRepositoryImpl(ignite),
+                ArchiveRepositoryImpl(ignite)
             )
         }
 
-        // TODO Перенести в service locator
-        val scanner by lazy { Scanner(System.`in`) }
-
-        ConsoleView(scanner, archiveUseCase).showMenu()
+        ConsoleView(scanner, archiveUseCase).start()
     }
 }

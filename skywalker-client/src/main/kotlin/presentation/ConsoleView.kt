@@ -1,8 +1,7 @@
 package presentation
 
-import domain.entity.FileEntity
-import domain.usecase.ArchiveUseCase
-import presentation.MenuItems.*
+import domain.usecase.CacheUseCase
+import presentation.model.MenuItems.*
 import java.util.*
 
 /**
@@ -10,10 +9,10 @@ import java.util.*
  */
 class ConsoleView(
     private val scanner: Scanner,
-    private val archiveUseCase: ArchiveUseCase
+    private val cacheUseCase: CacheUseCase
 ) {
 
-    fun showMenu() {
+    fun start() {
         showMessage("Hello!\nI'm Skywalker\n\n")
 
         showMessage(
@@ -52,9 +51,7 @@ class ConsoleView(
 
         showMessage("| Saving file: $fileName\n| ")
 
-        archiveUseCase.zipFile(
-            FileEntity(fileName, filePath)
-        )
+        cacheUseCase.saveFile(fileName, filePath)
         showMessage("| File: $fileName saved successfully")
         showMessage("|================================================|\n\n")
     }
@@ -66,7 +63,7 @@ class ConsoleView(
         val fileName = scanner.next()
 
         showMessage("| Loading file: $fileName\n| ")
-        val file = archiveUseCase.unzipFile(fileName)
+        val file = cacheUseCase.loadFile(fileName)
 
         if (file == null) {
             showError("| File: $fileName not found!")

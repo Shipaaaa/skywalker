@@ -2,6 +2,7 @@ package presentation
 
 import domain.usecase.CacheUseCase
 import presentation.model.MenuItems.*
+import java.io.IOException
 import java.util.*
 
 /**
@@ -51,8 +52,13 @@ class ConsoleView(
 
         showMessage("| Saving file: $fileName\n| ")
 
-        cacheUseCase.saveFile(fileName, filePath)
-        showMessage("| File: $fileName saved successfully")
+        try {
+            cacheUseCase.saveFile(fileName, filePath)
+            showMessage("| File: $fileName saved successfully")
+        } catch (e: IOException) {
+            showError("| File: $fileName not found!")
+        }
+
         showMessage("|================================================|\n\n")
     }
 

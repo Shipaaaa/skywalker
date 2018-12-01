@@ -1,0 +1,8 @@
+snappy| Файл,
+snappy| который
+snappy| должен
+snappy| сжать
+snappy| и
+snappy| распаковать
+snappy| алгоритм
+snappy| Snappy

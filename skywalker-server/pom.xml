@@ -5,9 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.shipa</groupId>
-    <artifactId>skywalker</artifactId>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>ru.shipa</groupId>
+        <artifactId>skywalker</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>skywalker-server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -17,12 +20,9 @@
         <kotlin.version>1.3.10</kotlin.version>
 
         <ignite.version>2.6.0</ignite.version>
-    </properties>
 
-    <modules>
-        <module>skywalker-client</module>
-        <module>skywalker-server</module>
-    </modules>
+        <apache.commons.compress.version>1.18</apache.commons.compress.version>
+    </properties>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -69,6 +69,13 @@
     <dependencies>
 
         <dependency>
+            <groupId>ru.shipa</groupId>
+            <artifactId>skywalker</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
@@ -87,6 +94,11 @@
             <version>${ignite.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${apache.commons.compress.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

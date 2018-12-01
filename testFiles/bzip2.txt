@@ -1,0 +1,8 @@
+bzip2| Файл,
+bzip2| который
+bzip2| должен
+bzip2| сжать
+bzip2| и
+bzip2| распаковать
+bzip2| алгоритм
+bzip2| bzip2

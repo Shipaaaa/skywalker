@@ -6,11 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="skywalker" />
+        <module name="skywalker-client" />
+        <module name="skywalker-server" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="skywalker" target="1.8" />
+      <module name="skywalker-client" target="1.8" />
+      <module name="skywalker-server" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

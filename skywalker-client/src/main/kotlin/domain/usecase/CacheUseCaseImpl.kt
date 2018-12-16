@@ -19,7 +19,7 @@ class CacheUseCaseImpl(
     private val archiveRepository: ArchiveRepository
 ) : CacheUseCase {
 
-    @Throws(IOException::class)
+    @Throws(IOException::class, NullPointerException::class)
     override fun saveFile(fileName: String, filePath: String) {
 
         val file = File(filePath)
@@ -28,7 +28,10 @@ class CacheUseCaseImpl(
 
         val fileEntity = FileEntity(fileName, blob)
 
+        // TODO добавить кастомную ошибку
         val compressionType = predictionRepository.predictCompressionType(fileName)
+            ?: throw NullPointerException("CompressionType not found")
+
         val metadata = FileMetadataEntity(fileName, filePath, compressionType, blob.size)
 
         archiveRepository.saveFileWithCompression(fileEntity, compressionType)

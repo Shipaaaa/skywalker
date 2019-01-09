@@ -1,12 +1,9 @@
 package data.repository.archive
 
+import data.service.cache.BZip2CacheService
 import data.service.cache.CacheService
-import data.worker.callable.LZ4Callable
-import data.worker.callable.BZip2Callable
-import data.worker.callable.SnappyCallable
-import data.worker.runnable.LZ4Runnable
-import data.worker.runnable.BZip2Runnable
-import data.worker.runnable.SnappyRunnable
+import data.service.cache.LZ4CacheService
+import data.service.cache.SnappyCacheService
 import domain.entity.CompressionType
 import domain.entity.FileEntity
 import org.apache.ignite.Ignite
@@ -17,39 +14,25 @@ import org.apache.ignite.Ignite
 class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
 
     override fun saveFileWithCompression(file: FileEntity, compressionType: CompressionType) {
-        val action = { cacheService: CacheService -> cacheService.saveFile(file) }
-
-        val runnable = when (compressionType) {
-            CompressionType.LZ4 -> LZ4Runnable(action)
-            CompressionType.BZIP2 -> BZip2Runnable(action)
-            CompressionType.SNAPPY -> SnappyRunnable(action)
-        }
-
-        ignite.compute().run(runnable)
+        getServiceProxyByCompressionType(compressionType).saveFile(file)
     }
 
     override fun loadFileWithDecompression(fileName: String, compressionType: CompressionType): FileEntity? {
-        val action = { cacheService: CacheService -> cacheService.loadFile(fileName) }
-
-        val callable = when (compressionType) {
-            CompressionType.LZ4 -> LZ4Callable(action)
-            CompressionType.BZIP2 -> BZip2Callable(action)
-            CompressionType.SNAPPY -> SnappyCallable(action)
-        }
-
-        return ignite.compute().call(callable)
+        return getServiceProxyByCompressionType(compressionType).loadFile(fileName)
     }
 
     override fun deleteFile(fileName: String, compressionType: CompressionType) {
-        val action = { cacheService: CacheService -> cacheService.deleteFile(fileName) }
+        getServiceProxyByCompressionType(compressionType).deleteFile(fileName)
+    }
 
-        val runnable = when (compressionType) {
-            CompressionType.LZ4 -> LZ4Runnable(action)
-            CompressionType.BZIP2 -> BZip2Runnable(action)
-            CompressionType.SNAPPY -> SnappyRunnable(action)
+    private fun getServiceProxyByCompressionType(compressionType: CompressionType): CacheService {
+        val serviceName = when (compressionType) {
+            CompressionType.LZ4 -> LZ4CacheService.TAG
+            CompressionType.BZIP2 -> BZip2CacheService.TAG
+            CompressionType.SNAPPY -> SnappyCacheService.TAG
         }
 
-        ignite.compute().run(runnable)
+        return ignite.services().serviceProxy(serviceName, CacheService::class.java, false)
     }
 }
 

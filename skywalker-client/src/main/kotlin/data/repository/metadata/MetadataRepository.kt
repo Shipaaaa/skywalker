@@ -1,7 +1,5 @@
 package data.repository.metadata
 
-import domain.entity.CompressionType
-import domain.entity.FileEntity
 import domain.entity.FileMetadataEntity
 
 /**

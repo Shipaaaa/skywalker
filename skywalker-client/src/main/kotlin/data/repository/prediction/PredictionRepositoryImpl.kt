@@ -1,20 +1,36 @@
 package data.repository.prediction
 
+import core.utils.Logger
+import data.model.PredictResponse
 import domain.entity.CompressionType
+import io.ktor.client.HttpClient
+import io.ktor.client.request.post
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.coroutines.runBlocking
 
 /**
  * Created by v.shipugin on 18/11/2018
  */
-class PredictionRepositoryImpl : PredictionRepository {
+class PredictionRepositoryImpl(private val httpClient: HttpClient) : PredictionRepository {
 
-    override fun predictCompressionType(fileName: String): CompressionType {
-        return when (fileName) {
-            "lz4.txt" -> CompressionType.LZ4
-            "bzip2.txt" -> CompressionType.BZIP2
-            "snappy.txt" -> CompressionType.SNAPPY
-            else -> CompressionType.SNAPPY
+    companion object {
+        private const val TAG = "PredictionRepositoryImpl"
+        private const val PREDICT_SERVICE_URL = "https://ship-vlad.xyz/skywalker/predict"
+    }
+
+    override fun predictCompressionType(fileName: String): CompressionType? {
+
+        val result = runBlocking {
+            httpClient.post<PredictResponse>(PREDICT_SERVICE_URL) {
+                contentType(ContentType.Application.Json)
+                body = fileName
+            }
         }
+
+        Logger.log(TAG, "predict result: $result")
+
+        return CompressionType.of(result.compressionType)
     }
 }
-
 

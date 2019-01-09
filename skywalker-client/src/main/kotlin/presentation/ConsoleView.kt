@@ -70,6 +70,8 @@ class ConsoleView(
             }
         } catch (e: IOException) {
             showError("| File: $fileName not found!")
+        } catch (e: NullPointerException) {
+            showError("| Something went wrong")
         }
 
         showMessage("|================================================|\n\n")
@@ -88,7 +90,7 @@ class ConsoleView(
             showError("| File: $fileName not found!")
         } else {
             showMessage("| File mame: ${file.name}\n| File path: ${file.path}")
-            
+
             @Suppress("ConstantConditionIf")
             if (IS_TXT_DEBUG_ENEBLED) {
                 showMessage("\n|================================================|")

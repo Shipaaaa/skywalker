@@ -6,7 +6,9 @@ fun main(args: Array<String>) {
     with(ClientInitializer()) {
         initLogger()
         initIgnite()
+        initHttpClient()
         startApp()
+        destroyHttpClient()
         destroyIgnite()
     }
 }

@@ -16,13 +16,15 @@ class PredictionRepositoryImpl(private val httpClient: HttpClient) : PredictionR
 
     companion object {
         private const val TAG = "PredictionRepositoryImpl"
-        private const val PREDICT_SERVICE_URL = "https://ship-vlad.xyz/skywalker/predict"
+
+        private val predictServiceUrl = System.getenv("PREDICT_SERVICE_URL")
+            ?: "http://localhost/skywalker/predict"
     }
 
     override fun predictCompressionType(fileName: String): CompressionType? {
 
         val result = runBlocking {
-            httpClient.post<PredictResponse>(PREDICT_SERVICE_URL) {
+            httpClient.post<PredictResponse>(predictServiceUrl) {
                 contentType(ContentType.Application.Json)
                 body = fileName
             }

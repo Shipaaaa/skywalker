@@ -1,6 +1,5 @@
 package data.service.metadata
 
-import domain.entity.FileEntity
 import domain.entity.FileMetadataEntity
 import org.apache.ignite.services.Service
 

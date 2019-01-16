@@ -1,8 +1,7 @@
 package data.repository.metadata
 
 import data.service.metadata.MetadataService
-import data.worker.callable.MetadataCallable
-import data.worker.runnable.MetadataRunnable
+import data.service.metadata.MetadataServiceImpl
 import domain.entity.FileMetadataEntity
 import org.apache.ignite.Ignite
 
@@ -12,27 +11,19 @@ import org.apache.ignite.Ignite
 class MetadataRepositoryImpl(private val ignite: Ignite) : MetadataRepository {
 
     override fun saveFileMetadata(file: FileMetadataEntity) {
-        val runnable = MetadataRunnable { metadataService: MetadataService ->
-            metadataService.saveFileMetadata(file)
-        }
-
-        ignite.compute().run(runnable)
+        getServiceProxy().saveFileMetadata(file)
     }
 
     override fun loadFileMetadata(fileName: String): FileMetadataEntity? {
-        val callable = MetadataCallable { metadataService: MetadataService ->
-            metadataService.loadFileMetadata(fileName)
-        }
-
-        return ignite.compute().call(callable)
+        return getServiceProxy().loadFileMetadata(fileName)
     }
 
     override fun deleteFileMetadata(fileName: String) {
-        val runnable = MetadataRunnable { metadataService: MetadataService ->
-            metadataService.deleteFileMetadata(fileName)
-        }
+        getServiceProxy().deleteFileMetadata(fileName)
+    }
 
-        ignite.compute().run(runnable)
+    private fun getServiceProxy(): MetadataService {
+        return ignite.services().serviceProxy(MetadataServiceImpl.TAG, MetadataService::class.java, false)
     }
 }
 

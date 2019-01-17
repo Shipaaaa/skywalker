@@ -3,11 +3,13 @@ package data.repository.prediction
 import core.utils.Logger
 import data.model.PredictResponse
 import domain.entity.CompressionType
+import domain.entity.FileEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
+import java.util.*
 
 /**
  * Created by v.shipugin on 18/11/2018
@@ -21,18 +23,29 @@ class PredictionRepositoryImpl(private val httpClient: HttpClient) : PredictionR
             ?: "http://localhost/skywalker/predict"
     }
 
-    override fun predictCompressionType(fileName: String): CompressionType? {
+    override fun predictCompressionType(fileEntity: FileEntity): CompressionType? {
 
         val result = runBlocking {
             httpClient.post<PredictResponse>(predictServiceUrl) {
                 contentType(ContentType.Application.Json)
-                body = fileName
+                body = getSampleDataFromFile(fileEntity)
             }
         }
 
         Logger.log(TAG, "predict result: $result")
 
         return CompressionType.of(result.compressionType)
+    }
+
+    fun getSampleDataFromFile(fileEntity: FileEntity): String {
+        val bytes = fileEntity.blob
+        val encodedBlob = Base64.getEncoder().encodeToString(bytes)
+
+        Logger.log(TAG, "Sample data size: ${bytes.size}")
+        Logger.log(TAG, "Sample data: $bytes")
+        Logger.log(TAG, "Encoded sample data: $encodedBlob")
+
+        return encodedBlob
     }
 }
 

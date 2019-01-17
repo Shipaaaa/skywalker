@@ -29,7 +29,7 @@ class CacheUseCaseImpl(
         val fileEntity = FileEntity(fileName, blob)
 
         // TODO добавить кастомную ошибку
-        val compressionType = predictionRepository.predictCompressionType(fileName)
+        val compressionType = predictionRepository.predictCompressionType(fileEntity)
             ?: throw NullPointerException("CompressionType not found")
 
         val metadata = FileMetadataEntity(fileName, filePath, compressionType, blob.size)

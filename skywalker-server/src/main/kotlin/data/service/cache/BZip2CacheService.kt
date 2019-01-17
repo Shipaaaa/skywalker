@@ -18,13 +18,13 @@ class BZip2CacheService : BaseCacheService() {
         val blobInputStream = ByteArrayInputStream(file.blob)
 
         val resultOutputStream = ByteArrayOutputStream()
-        val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
+        val bzip2OutputStream = CompressorStreamFactory().createCompressorOutputStream(
             CompressorStreamFactory.BZIP2,
             resultOutputStream.buffered()
         )
 
         blobInputStream.use { input ->
-            snappyOutputStream.use { snappyOutput ->
+            bzip2OutputStream.use { snappyOutput ->
                 input.copyTo(snappyOutput)
             }
         }
@@ -38,14 +38,14 @@ class BZip2CacheService : BaseCacheService() {
         val compressedFile = super.loadFile(fileName) ?: return null
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
-        val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
+        val bzip2InputStream = CompressorStreamFactory().createCompressorInputStream(
             CompressorStreamFactory.BZIP2,
             compressedOutputStream
         )
 
         val resultOutputStream = ByteArrayOutputStream()
 
-        snappyInputStream.use { snappyInput ->
+        bzip2InputStream.use { snappyInput ->
             resultOutputStream.use { output ->
                 snappyInput.copyTo(output)
             }

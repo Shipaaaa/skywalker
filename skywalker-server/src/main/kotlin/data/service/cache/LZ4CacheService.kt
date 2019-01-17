@@ -19,13 +19,13 @@ class LZ4CacheService : BaseCacheService() {
         val blobInputStream = ByteArrayInputStream(file.blob)
 
         val resultOutputStream = ByteArrayOutputStream()
-        val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
+        val lz4OutputStream = CompressorStreamFactory().createCompressorOutputStream(
             CompressorStreamFactory.LZ4_FRAMED,
             resultOutputStream.buffered()
         )
 
         blobInputStream.use { input ->
-            snappyOutputStream.use { snappyOutput ->
+            lz4OutputStream.use { snappyOutput ->
                 input.copyTo(snappyOutput)
             }
         }
@@ -39,14 +39,14 @@ class LZ4CacheService : BaseCacheService() {
         val compressedFile = super.loadFile(fileName) ?: return null
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
-        val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
+        val lz4InputStream = CompressorStreamFactory().createCompressorInputStream(
             CompressorStreamFactory.LZ4_FRAMED,
             compressedOutputStream
         )
 
         val resultOutputStream = ByteArrayOutputStream()
 
-        snappyInputStream.use { snappyInput ->
+        lz4InputStream.use { snappyInput ->
             resultOutputStream.use { output ->
                 snappyInput.copyTo(output)
             }

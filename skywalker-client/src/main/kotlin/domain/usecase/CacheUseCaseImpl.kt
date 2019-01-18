@@ -54,4 +54,8 @@ class CacheUseCaseImpl(
             ?.let { archiveRepository.deleteFile(fileName, it) }
             ?.also { metadataRepository.deleteFileMetadata(fileName) }
     }
+
+    override fun getAllInfo(): List<FileMetadataEntity> {
+        return metadataRepository.loadAllMetadata()
+    }
 }

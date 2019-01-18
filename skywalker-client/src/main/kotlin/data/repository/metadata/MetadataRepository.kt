@@ -12,4 +12,6 @@ interface MetadataRepository {
     fun loadFileMetadata(fileName: String): FileMetadataEntity?
 
     fun deleteFileMetadata(fileName: String)
+
+    fun loadAllMetadata(): List<FileMetadataEntity>
 }

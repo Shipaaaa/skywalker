@@ -1,5 +1,6 @@
 package domain.usecase
 
+import domain.entity.FileMetadataEntity
 import presentation.model.LoadingFileResult
 import java.io.IOException
 
@@ -14,4 +15,6 @@ interface CacheUseCase {
     fun loadFile(fileName: String): LoadingFileResult?
 
     fun deleteFile(fileName: String)
+
+    fun getAllInfo(): List<FileMetadataEntity>
 }

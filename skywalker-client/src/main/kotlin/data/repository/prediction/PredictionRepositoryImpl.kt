@@ -37,12 +37,12 @@ class PredictionRepositoryImpl(private val httpClient: HttpClient) : PredictionR
         return CompressionType.of(result.compressionType)
     }
 
-    fun getSampleDataFromFile(fileEntity: FileEntity): String {
+    private fun getSampleDataFromFile(fileEntity: FileEntity): String {
         val bytes = fileEntity.blob
         val encodedBlob = Base64.getEncoder().encodeToString(bytes)
 
         Logger.log(TAG, "Sample data size: ${bytes.size}")
-        Logger.log(TAG, "Sample data: $bytes")
+        Logger.log(TAG, "Sample data: ${bytes.joinToString(",")}")
         Logger.log(TAG, "Encoded sample data: $encodedBlob")
 
         return encodedBlob

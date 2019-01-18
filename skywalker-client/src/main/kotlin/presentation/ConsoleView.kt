@@ -15,7 +15,7 @@ class ConsoleView(
 ) {
 
     companion object {
-        private const val IS_TXT_DEBUG_ENEBLED = true
+        private const val IS_TXT_DEBUG_ENABLED = true
     }
 
     fun start() {
@@ -25,6 +25,7 @@ class ConsoleView(
             "Menu:\n" +
                     "Enter 1 for save file\n" +
                     "Enter 2 for load file\n" +
+                    "Enter 3 for getting all files info\n" +
                     "Enter 0 for exit\n\n"
         )
 
@@ -36,6 +37,7 @@ class ConsoleView(
             when (pick) {
                 SAVE.number -> saveFile()
                 LOAD.number -> load()
+                GET_ALL_INFO.number -> getAllInfo()
                 else -> showError("I didn't understand you. Repeat please:")
             }
 
@@ -48,7 +50,7 @@ class ConsoleView(
 
     private fun saveFile() {
         showMessage("\n|================================================|")
-        showMessage("| Your have chosen to save the file.")
+        showMessage("| You have chosen to save the file.")
         showMessage("| Enter file name:")
         val fileName = scanner.next()
 
@@ -62,7 +64,7 @@ class ConsoleView(
             showMessage("| File: $fileName saved successfully")
 
             @Suppress("ConstantConditionIf")
-            if (IS_TXT_DEBUG_ENEBLED) {
+            if (IS_TXT_DEBUG_ENABLED) {
                 showMessage("\n|================================================|")
                 showMessage("| File content")
                 showMessage(File(filePath).readText(Charsets.UTF_8))
@@ -79,7 +81,7 @@ class ConsoleView(
 
     private fun load() {
         showMessage("\n|================================================|")
-        showMessage("| Your have chosen to load the file.")
+        showMessage("| You have chosen to load the file.")
         showMessage("| Enter file name:")
         val fileName = scanner.next()
 
@@ -92,7 +94,7 @@ class ConsoleView(
             showMessage("| File mame: ${file.name}\n| File path: ${file.path}")
 
             @Suppress("ConstantConditionIf")
-            if (IS_TXT_DEBUG_ENEBLED) {
+            if (IS_TXT_DEBUG_ENABLED) {
                 showMessage("\n|================================================|")
                 showMessage("| File content")
                 showMessage(String(file.fileEntity.blob))
@@ -100,6 +102,26 @@ class ConsoleView(
             }
         }
         showMessage("|================================================|\n\n")
+    }
+
+    private fun getAllInfo() {
+        showMessage("\n|================================================|")
+        showMessage("| You have chosen to get all information.")
+        showMessage("|================================================|")
+        val filesMetadata = cacheUseCase.getAllInfo()
+        if (filesMetadata.isEmpty()) {
+            showMessage("| Cache is empty")
+            showMessage("|================================================|")
+        } else {
+            filesMetadata.forEachIndexed { index, entity ->
+                showMessage("| Index: $index")
+                showMessage("| File name: ${entity.fileName}")
+                showMessage("| File path: ${entity.filePath}")
+                showMessage("| Full sie: ${entity.fullSize}")
+                showMessage("| Compression: ${entity.compressionType}")
+                showMessage("|================================================|")
+            }
+        }
     }
 
     private fun showMessage(message: String) {

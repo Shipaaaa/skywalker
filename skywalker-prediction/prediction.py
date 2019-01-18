@@ -37,9 +37,9 @@ class Model(Controller):
          first_byte = sample_data[0]
          app.logger.info("first_byte: " + str(first_byte))
 
-         if first_byte == 98:
+         if first_byte == 108:
             compressionType = compressionTypes['lz4.txt']
-         elif first_byte == 135:
+         elif first_byte == 98:
             compressionType = compressionTypes['bzip2.txt']
          elif first_byte == 115:
             compressionType = compressionTypes['snappy.txt']

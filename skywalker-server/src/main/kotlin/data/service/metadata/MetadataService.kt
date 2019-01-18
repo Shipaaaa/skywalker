@@ -12,5 +12,7 @@ interface MetadataService : Service {
 
     fun loadFileMetadata(fileName: String): FileMetadataEntity?
 
+    fun loadAllMetadata(): List<FileMetadataEntity>
+
     fun deleteFileMetadata(fileName: String)
 }

@@ -1,6 +1,7 @@
 package data.service.metadata
 
 import domain.entity.FileMetadataEntity
+import org.apache.commons.compress.utils.Lists
 import org.apache.ignite.Ignite
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.resources.IgniteInstanceResource
@@ -42,6 +43,12 @@ class MetadataServiceImpl : MetadataService {
 
     override fun loadFileMetadata(fileName: String): FileMetadataEntity? {
         return cache.get(fileName)
+    }
+
+    override fun loadAllMetadata(): List<FileMetadataEntity> {
+        return Lists
+            .newArrayList(cache.iterator())
+            .map { it.value }
     }
 
     override fun deleteFileMetadata(fileName: String) {

@@ -18,6 +18,10 @@ class MetadataRepositoryImpl(private val ignite: Ignite) : MetadataRepository {
         return getServiceProxy().loadFileMetadata(fileName)
     }
 
+    override fun loadAllMetadata(): List<FileMetadataEntity> {
+        return getServiceProxy().loadAllMetadata()
+    }
+
     override fun deleteFileMetadata(fileName: String) {
         getServiceProxy().deleteFileMetadata(fileName)
     }

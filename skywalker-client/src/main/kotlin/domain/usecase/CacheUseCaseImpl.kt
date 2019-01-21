@@ -72,7 +72,7 @@ class CacheUseCaseImpl(
             ?: throw NullPointerException("File $fileName not found")
     }
 
-    override fun getAllInfo(): List<FileMetadataEntity> {
+    override fun loadAllInfo(): List<FileMetadataEntity> {
         return metadataRepository.loadAllMetadata()
     }
 }

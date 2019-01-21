@@ -168,7 +168,7 @@ class RestView(
     }
 
     private suspend fun getAllInfo(call: ApplicationCall) {
-        val filesMetadata = presenter.getAllInfo()
+        val filesMetadata = presenter.loadAllInfo()
         filesMetadata.forEachIndexed { index, entity ->
             logMessage(
                 "Index: $index\n" +

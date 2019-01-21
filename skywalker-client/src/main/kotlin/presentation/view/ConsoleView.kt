@@ -158,7 +158,7 @@ class ConsoleView(
         showMessage("| You have chosen to get all information.")
         showMessage("|================================================|")
 
-        val filesMetadata = presenter.getAllInfo()
+        val filesMetadata = presenter.loadAllInfo()
         if (filesMetadata.isEmpty()) {
             showMessage("| Cache is empty")
         } else {

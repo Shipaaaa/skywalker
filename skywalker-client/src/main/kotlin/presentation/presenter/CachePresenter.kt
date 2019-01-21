@@ -38,7 +38,8 @@ class CachePresenter(private val cacheUseCase: CacheUseCase) {
         cacheUseCase.deleteFile(fileName)
     }
 
-    fun getAllInfo(): List<FileMetadataEntity> {
-        return cacheUseCase.getAllInfo()
+    @Throws(NullPointerException::class)
+    fun loadAllInfo(): List<FileMetadataEntity> {
+        return cacheUseCase.loadAllInfo()
     }
 }

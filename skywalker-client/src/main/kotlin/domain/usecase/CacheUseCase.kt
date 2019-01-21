@@ -28,5 +28,5 @@ interface CacheUseCase {
 
     fun deleteFile(fileName: String)
 
-    fun getAllInfo(): List<FileMetadataEntity>
+    fun loadAllInfo(): List<FileMetadataEntity>
 }

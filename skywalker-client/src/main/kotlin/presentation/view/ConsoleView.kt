@@ -2,9 +2,9 @@ package presentation.view
 
 import Configurations
 import domain.entity.FileEntity
+import domain.usecase.CacheUseCase
 import presentation.model.MenuItem
 import presentation.model.MenuItem.*
-import presentation.presenter.CachePresenter
 import java.io.File
 import java.nio.file.Files
 import java.util.*
@@ -14,7 +14,7 @@ import java.util.*
  */
 class ConsoleView(
     private val scanner: Scanner,
-    private val presenter: CachePresenter
+    private val cacheUseCase: CacheUseCase
 ) : CacheView {
 
     companion object {
@@ -71,7 +71,7 @@ class ConsoleView(
             val blob = Files.readAllBytes(file.toPath())
             val fileEntity = FileEntity(fileName, blob)
 
-            presenter.saveFile(fileEntity)
+            cacheUseCase.saveFile(fileEntity)
             showMessage("| File: $fileName saved successfully")
 
             @Suppress("ConstantConditionIf")
@@ -99,7 +99,7 @@ class ConsoleView(
             val blob = Files.readAllBytes(file.toPath())
             val fileEntity = FileEntity(fileName, blob)
 
-            presenter.updateFile(fileEntity)
+            cacheUseCase.updateFile(fileEntity)
             showMessage("| File: $fileName updated successfully")
 
             @Suppress("ConstantConditionIf")
@@ -120,7 +120,7 @@ class ConsoleView(
         showMessage("| Loading file: $fileName\n| ")
 
         try {
-            val file = presenter.loadFile(fileName)
+            val file = cacheUseCase.loadFile(fileName)
             showMessage("| File name: ${file.fileMetadataEntity.fileName}")
             showMessage("| Full sie: ${file.fileMetadataEntity.fullSize}")
             showMessage("| Compression: ${file.fileMetadataEntity.compressionType}")
@@ -144,7 +144,7 @@ class ConsoleView(
         showMessage("| Deleting file: $fileName\n| ")
 
         try {
-            presenter.deleteFile(fileName)
+            cacheUseCase.deleteFile(fileName)
             showMessage("| File: $fileName deleted successfully")
         } catch (e: Exception) {
             showError("| Error: ${e.message}")
@@ -158,7 +158,7 @@ class ConsoleView(
         showMessage("| You have chosen to get all information.")
         showMessage("|================================================|")
 
-        val filesMetadata = presenter.loadAllInfo()
+        val filesMetadata = cacheUseCase.loadAllInfo()
         if (filesMetadata.isEmpty()) {
             showMessage("| Cache is empty")
         } else {

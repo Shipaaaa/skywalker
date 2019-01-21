@@ -13,7 +13,6 @@ import io.ktor.client.features.logging.Logging
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.configuration.IgniteConfiguration
-import presentation.presenter.CachePresenter
 import presentation.view.CacheView
 import presentation.view.ConsoleView
 import presentation.view.RestView
@@ -71,7 +70,7 @@ class ClientInitializer {
     fun startApp() {
         val scanner by lazy { Scanner(System.`in`) }
 
-        val archiveUseCase by lazy {
+        val cacheUseCase by lazy {
             CacheUseCaseImpl(
                 PredictionRepositoryImpl(httpClient),
                 MetadataRepositoryImpl(ignite),
@@ -81,9 +80,9 @@ class ClientInitializer {
 
         @Suppress("ConstantConditionIf")
         val view: CacheView = if (Configurations.ENABLE_REST_API) {
-            RestView(CachePresenter(archiveUseCase))
+            RestView(cacheUseCase)
         } else {
-            ConsoleView(scanner, CachePresenter(archiveUseCase))
+            ConsoleView(scanner, cacheUseCase)
         }
 
         view.start()

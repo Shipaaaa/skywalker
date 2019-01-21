@@ -4,6 +4,7 @@ import Configurations
 import Configurations.ENABLE_FILE_CONTENT_LOGGING
 import core.utils.Logger
 import domain.entity.FileEntity
+import domain.usecase.CacheUseCase
 import domain.utils.copyToSuspend
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -23,7 +24,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import presentation.model.ApiResponse
 import presentation.model.ErrorApiResponse
-import presentation.presenter.CachePresenter
 import java.io.File
 import java.nio.file.Files
 
@@ -31,7 +31,7 @@ import java.nio.file.Files
  * Created by v.shipugin on 03/11/2018
  */
 class RestView(
-    private val presenter: CachePresenter
+    private val cacheUseCase: CacheUseCase
 ) : CacheView {
 
     companion object {
@@ -71,7 +71,7 @@ class RestView(
         logMessage("Saving file: ${fileEntity.name}")
 
         try {
-            presenter.saveFile(fileEntity)
+            cacheUseCase.saveFile(fileEntity)
             logMessage("File: ${fileEntity.name} saved successfully")
 
             call.respond(ApiResponse("SUCCESS"))
@@ -105,7 +105,7 @@ class RestView(
         }
 
         try {
-            presenter.updateFile(fileEntity)
+            cacheUseCase.updateFile(fileEntity)
             logMessage("File: $fileName updated successfully")
 
             call.respond(ApiResponse("SUCCESS"))
@@ -129,7 +129,7 @@ class RestView(
         logMessage("Loading file: $fileName")
 
         try {
-            val file = presenter.loadFile(fileName)
+            val file = cacheUseCase.loadFile(fileName)
             logMessage(
                 "File name: ${file.fileMetadataEntity.fileName}\n" +
                         "Full sie: ${file.fileMetadataEntity.fullSize}\n" +
@@ -157,7 +157,7 @@ class RestView(
         logMessage("Deleting file: $fileName")
 
         try {
-            presenter.deleteFile(fileName)
+            cacheUseCase.deleteFile(fileName)
             logMessage("File: $fileName deleted successfully")
 
             call.respond(ApiResponse("SUCCESS"))
@@ -168,7 +168,7 @@ class RestView(
     }
 
     private suspend fun getAllInfo(call: ApplicationCall) {
-        val filesMetadata = presenter.loadAllInfo()
+        val filesMetadata = cacheUseCase.loadAllInfo()
         filesMetadata.forEachIndexed { index, entity ->
             logMessage(
                 "Index: $index\n" +

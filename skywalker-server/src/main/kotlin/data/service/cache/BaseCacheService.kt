@@ -40,11 +40,13 @@ abstract class BaseCacheService : CacheService {
         cache.put(key, encodedFile)
     }
 
-    override fun loadFile(fileName: String): FileEntity? {
+    @Throws(NullPointerException::class)
+    override fun loadFile(fileName: String): FileEntity {
         return cache
             .get(fileName)
             ?.let { Base64.getDecoder().decode(it) }
             ?.let { FileEntity(fileName, it) }
+            ?: throw NullPointerException("File $fileName not found")
     }
 
     override fun deleteFile(fileName: String) {

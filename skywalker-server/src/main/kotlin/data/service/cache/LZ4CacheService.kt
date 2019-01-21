@@ -35,8 +35,9 @@ class LZ4CacheService : BaseCacheService() {
         super.saveFile(FileEntity(file.name, compressedBlob))
     }
 
-    override fun loadFile(fileName: String): FileEntity? {
-        val compressedFile = super.loadFile(fileName) ?: return null
+    @Throws(NullPointerException::class)
+    override fun loadFile(fileName: String): FileEntity {
+        val compressedFile = super.loadFile(fileName)
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
         val lz4InputStream = CompressorStreamFactory().createCompressorInputStream(

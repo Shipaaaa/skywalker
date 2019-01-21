@@ -6,9 +6,7 @@ import data.repository.prediction.PredictionRepository
 import domain.entity.FileEntity
 import domain.entity.FileMetadataEntity
 import presentation.model.LoadingFileResult
-import java.io.File
 import java.io.IOException
-import java.nio.file.Files
 
 /**
  * Created by v.shipugin on 15/09/2018
@@ -19,32 +17,50 @@ class CacheUseCaseImpl(
     private val archiveRepository: ArchiveRepository
 ) : CacheUseCase {
 
-    @Throws(IOException::class, NullPointerException::class)
-    override fun saveFile(fileName: String, filePath: String) {
+    @Throws(
+        IOException::class,
+        IllegalArgumentException::class,
+        NullPointerException::class
+    )
+    override fun saveFile(fileEntity: FileEntity) {
+        val fileMetadata = metadataRepository.loadFileMetadata(fileEntity.name)
+        if (fileMetadata != null) throw IllegalArgumentException("File ${fileEntity.name} already exist")
 
-        val file = File(filePath)
-
-        val blob = Files.readAllBytes(file.toPath())
-
-        val fileEntity = FileEntity(fileName, blob)
-
-        // TODO добавить кастомную ошибку
         val compressionType = predictionRepository.predictCompressionType(fileEntity)
             ?: throw NullPointerException("CompressionType not found")
 
-        val metadata = FileMetadataEntity(fileName, filePath, compressionType, blob.size)
+        val metadata = FileMetadataEntity(fileEntity.name, compressionType, fileEntity.blob.size)
 
         archiveRepository.saveFileWithCompression(fileEntity, compressionType)
         metadataRepository.saveFileMetadata(metadata)
     }
 
-    override fun loadFile(fileName: String): LoadingFileResult? {
-        val fileMetadata = metadataRepository.loadFileMetadata(fileName) ?: return null
+    @Throws(
+        NullPointerException::class,
+        IOException::class,
+        IllegalArgumentException::class
+    )
+    override fun updateFile(fileEntity: FileEntity) {
+        metadataRepository.loadFileMetadata(fileEntity.name)
+            ?: throw NullPointerException("File ${fileEntity.name} not found")
 
-        // TODO Something?
+        val compressionType = predictionRepository.predictCompressionType(fileEntity)
+            ?: throw NullPointerException("CompressionType not found")
+
+        val metadata = FileMetadataEntity(fileEntity.name, compressionType, fileEntity.blob.size)
+
+        archiveRepository.saveFileWithCompression(fileEntity, compressionType)
+        metadataRepository.saveFileMetadata(metadata)
+    }
+
+    @Throws(NullPointerException::class)
+    override fun loadFile(fileName: String): LoadingFileResult {
+        val fileMetadata = metadataRepository.loadFileMetadata(fileName)
+            ?: throw NullPointerException("File $fileName not found")
+
         val fileEntity = archiveRepository.loadFileWithDecompression(fileName, fileMetadata.compressionType)
 
-        return fileEntity?.let { LoadingFileResult(fileMetadata.fileName, fileMetadata.filePath, it) }
+        return LoadingFileResult(fileMetadata, fileEntity)
     }
 
     override fun deleteFile(fileName: String) {
@@ -53,6 +69,7 @@ class CacheUseCaseImpl(
             ?.compressionType
             ?.let { archiveRepository.deleteFile(fileName, it) }
             ?.also { metadataRepository.deleteFileMetadata(fileName) }
+            ?: throw NullPointerException("File $fileName not found")
     }
 
     override fun getAllInfo(): List<FileMetadataEntity> {

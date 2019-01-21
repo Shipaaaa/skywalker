@@ -5,7 +5,6 @@ package domain.entity
  */
 data class FileMetadataEntity(
     val fileName: String,
-    val filePath: String,
     val compressionType: CompressionType,
     val fullSize: Int
 )

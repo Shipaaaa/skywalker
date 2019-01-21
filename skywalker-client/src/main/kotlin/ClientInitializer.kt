@@ -13,7 +13,10 @@ import io.ktor.client.features.logging.Logging
 import org.apache.ignite.Ignite
 import org.apache.ignite.Ignition
 import org.apache.ignite.configuration.IgniteConfiguration
-import presentation.ConsoleView
+import presentation.presenter.CachePresenter
+import presentation.view.CacheView
+import presentation.view.ConsoleView
+import presentation.view.RestView
 import java.util.*
 
 /**
@@ -25,8 +28,7 @@ class ClientInitializer {
     private lateinit var httpClient: HttpClient
 
     fun initLogger() {
-        // TODO Добавить переключение в зависимости от типа сборки
-        Logger.init(true)
+        Logger.init(Configurations.ENABLE_LOGGING)
     }
 
     fun initIgnite() {
@@ -77,6 +79,13 @@ class ClientInitializer {
             )
         }
 
-        ConsoleView(scanner, archiveUseCase).start()
+        @Suppress("ConstantConditionIf")
+        val view: CacheView = if (Configurations.ENABLE_REST_API) {
+            RestView(CachePresenter(archiveUseCase))
+        } else {
+            ConsoleView(scanner, CachePresenter(archiveUseCase))
+        }
+
+        view.start()
     }
 }

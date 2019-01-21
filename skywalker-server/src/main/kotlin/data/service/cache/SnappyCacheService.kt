@@ -36,15 +36,16 @@ class SnappyCacheService : BaseCacheService() {
         super.saveFile(FileEntity(file.name, compressedBlob))
     }
 
-    override fun loadFile(fileName: String): FileEntity? {
-        val compressedFile = super.loadFile(fileName) ?: return null
+    @Throws(NullPointerException::class)
+    override fun loadFile(fileName: String): FileEntity {
+        val compressedFile = super.loadFile(fileName)
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
         val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
             CompressorStreamFactory.SNAPPY_FRAMED,
             compressedOutputStream
         )
-        
+
         val resultOutputStream = ByteArrayOutputStream()
 
         snappyInputStream.use { snappyInput ->

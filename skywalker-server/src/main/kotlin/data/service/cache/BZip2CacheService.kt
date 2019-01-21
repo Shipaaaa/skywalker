@@ -34,8 +34,9 @@ class BZip2CacheService : BaseCacheService() {
         super.saveFile(FileEntity(file.name, compressedBlob))
     }
 
-    override fun loadFile(fileName: String): FileEntity? {
-        val compressedFile = super.loadFile(fileName) ?: return null
+    @Throws(NullPointerException::class)
+    override fun loadFile(fileName: String): FileEntity {
+        val compressedFile = super.loadFile(fileName)
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
         val bzip2InputStream = CompressorStreamFactory().createCompressorInputStream(

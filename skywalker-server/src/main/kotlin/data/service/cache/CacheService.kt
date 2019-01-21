@@ -10,7 +10,8 @@ interface CacheService : Service {
 
     fun saveFile(file: FileEntity)
 
-    fun loadFile(fileName: String): FileEntity?
+    @Throws(NullPointerException::class)
+    fun loadFile(fileName: String): FileEntity
 
     fun deleteFile(fileName: String)
 }

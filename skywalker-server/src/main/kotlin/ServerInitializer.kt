@@ -26,13 +26,11 @@ class ServerInitializer {
     private lateinit var ignite: Ignite
 
     fun initLogger() {
-        // TODO Добавить переключение в зависимости от типа сборки
-        Logger.init(true)
+        Logger.init(Configurations.ENABLE_LOGGING)
     }
 
     fun initIgnite() {
 
-        // TODO Поправить конфигурацию. Очень много предупреждений
         val igniteCfg = IgniteConfiguration().apply {
             isPeerClassLoadingEnabled = true
         }

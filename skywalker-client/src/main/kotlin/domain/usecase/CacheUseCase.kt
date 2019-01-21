@@ -1,5 +1,6 @@
 package domain.usecase
 
+import domain.entity.FileEntity
 import domain.entity.FileMetadataEntity
 import presentation.model.LoadingFileResult
 import java.io.IOException
@@ -9,10 +10,21 @@ import java.io.IOException
  */
 interface CacheUseCase {
 
-    @Throws(IOException::class)
-    fun saveFile(fileName: String, filePath: String)
+    @Throws(
+        IOException::class,
+        IllegalArgumentException::class,
+        NullPointerException::class
+    )
+    fun saveFile(fileEntity: FileEntity)
 
-    fun loadFile(fileName: String): LoadingFileResult?
+    @Throws(
+        NullPointerException::class,
+        IOException::class,
+        IllegalArgumentException::class
+    )
+    fun updateFile(fileEntity: FileEntity)
+
+    fun loadFile(fileName: String): LoadingFileResult
 
     fun deleteFile(fileName: String)
 

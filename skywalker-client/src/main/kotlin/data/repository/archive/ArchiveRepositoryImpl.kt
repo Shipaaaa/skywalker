@@ -17,7 +17,7 @@ class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
         getServiceProxyByCompressionType(compressionType).saveFile(file)
     }
 
-    override fun loadFileWithDecompression(fileName: String, compressionType: CompressionType): FileEntity? {
+    override fun loadFileWithDecompression(fileName: String, compressionType: CompressionType): FileEntity {
         return getServiceProxyByCompressionType(compressionType).loadFile(fileName)
     }
 

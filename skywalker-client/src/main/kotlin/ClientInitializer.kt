@@ -51,7 +51,7 @@ class ClientInitializer {
             }
             install(Logging) {
                 logger = io.ktor.client.features.logging.Logger.DEFAULT
-                level = LogLevel.ALL
+                level = if (Configurations.ENABLE_LOGGING) LogLevel.ALL else LogLevel.NONE
             }
             install(JsonFeature) {
                 serializer = GsonSerializer()

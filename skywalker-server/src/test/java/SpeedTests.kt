@@ -13,58 +13,214 @@ import java.util.*
  */
 
 private const val TAG = "SpeedTests"
-private const val TEST_DATA_PATH: String = "/Users/v.shipugin/Documents/GitHub/skywalker/testFiles"
+private const val TEST_DATA_PATH: String = "D:\\dataset"
+private const val RESULT_FILE_NAME = "speed_test.csv"
 private const val SEPARATOR = ','
+private const val NEED_ADD_HEADER = true
+private const val maxCountOfFiles = 50
 
 private val sb = StringBuilder()
 
 fun main() {
     Logger.init(true)
 
-    val resultFile = PrintWriter(File("speed_test.csv"))
+    val resultFile = PrintWriter(File(RESULT_FILE_NAME))
+
+    @Suppress("ConstantConditionIf")
+    if (NEED_ADD_HEADER) {
+        sb.append("number").append(SEPARATOR)
+        sb.append("name").append(SEPARATOR)
+        sb.append("extension").append(SEPARATOR)
+        sb.append("original size (KB)").append(SEPARATOR)
+
+        sb.append("LZ4 size (KB)").append(SEPARATOR)
+        sb.append("LZ4 compression ratio").append(SEPARATOR)
+        sb.append("LZ4 compression time").append(SEPARATOR)
+        sb.append("LZ4 decompression time").append(SEPARATOR)
+        sb.append("LZ4 total time").append(SEPARATOR)
+        sb.append("LZ4 result").append(SEPARATOR)
 
 
+        sb.append("Snappy size (KB)").append(SEPARATOR)
+        sb.append("Snappy compression ratio").append(SEPARATOR)
+        sb.append("Snappy compression time").append(SEPARATOR)
+        sb.append("Snappy decompression time").append(SEPARATOR)
+        sb.append("Snappy total time").append(SEPARATOR)
+        sb.append("Snappy result").append(SEPARATOR)
 
-    sb.append("number").append(SEPARATOR)
-    sb.append("name").append(SEPARATOR)
-    sb.append("original size (KB)").append(SEPARATOR)
+        sb.append("Bzip2 size (KB)").append(SEPARATOR)
+        sb.append("Bzip2 compression ratio").append(SEPARATOR)
+        sb.append("Bzip2 compression time").append(SEPARATOR)
+        sb.append("Bzip2 decompression time").append(SEPARATOR)
+        sb.append("Bzip2 total time").append(SEPARATOR)
+        sb.append("Bzip2 result").append(SEPARATOR)
 
-    sb.append("LZ4 size (KB)").append(SEPARATOR)
-    sb.append("LZ4 compression time").append(SEPARATOR)
-    sb.append("LZ4 decompression time").append(SEPARATOR)
-    sb.append("LZ4 total time").append(SEPARATOR)
+        sb.append("best result").append(SEPARATOR)
+        sb.append("best compressor").append(SEPARATOR)
+        sb.append("best compressor id")
+        sb.append('\n')
+    }
 
-    sb.append("Snappy size (KB)").append(SEPARATOR)
-    sb.append("Snappy compression time").append(SEPARATOR)
-    sb.append("Snappy decompression time").append(SEPARATOR)
-    sb.append("Snappy total time").append(SEPARATOR)
-
-    sb.append("Bzip2 size (KB)").append(SEPARATOR)
-    sb.append("Bzip2 compression time").append(SEPARATOR)
-    sb.append("Bzip2 decompression time").append(SEPARATOR)
-    sb.append("Bzip2 total time").append(SEPARATOR)
-    sb.append('\n')
-
-
-    var number = 0
+    var fileNumber = 0
 
     for (fileEntry in File(TEST_DATA_PATH).listFiles()) {
         if (fileEntry.isFile) {
-            sb.append(++number).append(SEPARATOR)
+            if (fileNumber >= maxCountOfFiles) break
+            if (fileNumber != 0) sb.append('\n')
+
+            sb.append(++fileNumber).append(SEPARATOR)
 
             sb.append(fileEntry.name).append(SEPARATOR)
             Logger.log(TAG, "File name: ${fileEntry.name}")
 
+            sb.append(fileEntry.extension).append(SEPARATOR)
+            Logger.log(TAG, "File extension: ${fileEntry.extension}")
+
             val fileBlob = Files.readAllBytes(fileEntry.toPath())
-            val fileSizeInKB = fileBlob.size / 1000F
-            sb.append(fileSizeInKB).append(SEPARATOR)
-            Logger.log(TAG, "File size: $fileSizeInKB")
+            val originalFileSizeInKB = fileBlob.size / 1000F
+            sb.append(originalFileSizeInKB).append(SEPARATOR)
+            Logger.log(TAG, "File size: $originalFileSizeInKB")
 
-            testLZ4(fileBlob)
-            testSnappy(fileBlob)
-            testBzip2(fileBlob)
 
-            sb.append('\n')
+            /**
+             *********************************************************
+             * Тест производительности алгоритма LZ4
+             *********************************************************
+             */
+            Logger.log(TAG, "LZ4")
+
+            val lz4StartTime = getCurrentTime()
+            val lz4CompressedBlob = lz4Compress(fileBlob)
+            val lz4CompressedTime = getCurrentTime()
+            val lz4DecompressedBlob = lz4Decompress(lz4CompressedBlob)
+            val lz4DecompressedTime = getCurrentTime()
+
+            val lz4CompressedSize = lz4CompressedBlob.size / 1000F
+            sb.append(lz4CompressedSize).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 compressedSize: $lz4CompressedSize")
+
+            val lz4CompressionRatio = calcCompressionRatio(lz4CompressedSize, originalFileSizeInKB)
+            sb.append(lz4CompressionRatio).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 compression ratio: $lz4CompressionRatio")
+
+            val lz4CompressionTime = lz4CompressedTime - lz4StartTime
+            sb.append(lz4CompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 compressionTime: $lz4CompressionTime")
+
+            val lz4DecompressionTime = lz4DecompressedTime - lz4CompressedTime
+            sb.append(lz4DecompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 decompressionTime: $lz4DecompressionTime")
+
+            val lz4TotalTime = lz4DecompressedTime - lz4StartTime
+            sb.append(lz4TotalTime).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 totalTime: $lz4TotalTime")
+
+            val lz4Result = calcResult(lz4CompressionRatio, lz4TotalTime)
+            sb.append(lz4Result).append(SEPARATOR)
+            Logger.log(TAG, "LZ4 result: $lz4Result")
+
+            if (!Arrays.equals(fileBlob, lz4DecompressedBlob)) throw Exception("Error in compression")
+
+
+            /**
+             *********************************************************
+             * Тест производительности алгоритма Snappy
+             *********************************************************
+             */
+            Logger.log(TAG, "Snappy")
+
+            val snappyStartTime = getCurrentTime()
+            val snappyCompressedBlob = snappyCompress(fileBlob)
+            val snappyCompressedTime = getCurrentTime()
+            val snappyDecompressedBlob = snappyDecompress(snappyCompressedBlob)
+            val snappyDecompressedTime = getCurrentTime()
+
+            val snappyCompressedSize = snappyCompressedBlob.size / 1000F
+            sb.append(snappyCompressedSize).append(SEPARATOR)
+            Logger.log(TAG, "Snappy compressedSize: $snappyCompressedSize")
+
+            val snappyCompressionRatio = calcCompressionRatio(snappyCompressedSize, originalFileSizeInKB)
+            sb.append(snappyCompressionRatio).append(SEPARATOR)
+            Logger.log(TAG, "Snappy compression ratio: $snappyCompressionRatio")
+
+            val snappyCompressionTime = snappyCompressedTime - snappyStartTime
+            sb.append(snappyCompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "Snappy compressionTime: $snappyCompressionTime")
+
+            val snappyDecompressionTime = snappyDecompressedTime - snappyCompressedTime
+            sb.append(snappyDecompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "Snappy decompressionTime: $snappyDecompressionTime")
+
+            val snappyTotalTime = snappyDecompressedTime - snappyStartTime
+            sb.append(snappyTotalTime).append(SEPARATOR)
+            Logger.log(TAG, "Snappy totalTime: $snappyTotalTime")
+
+            val snappyResult = calcResult(snappyCompressionRatio, snappyTotalTime)
+            sb.append(snappyResult).append(SEPARATOR)
+            Logger.log(TAG, "Snappy result: $snappyResult")
+
+            if (!Arrays.equals(fileBlob, snappyDecompressedBlob)) throw Exception("Error in compression")
+
+
+            /**
+             *********************************************************
+             * Тест производительности алгоритма Bzip2
+             *********************************************************
+             */
+            Logger.log(TAG, "Bzip2")
+
+            val bzip2StartTime = getCurrentTime()
+            val bzip2CompressedBlob = bzip2Compress(fileBlob)
+            val bzip2CompressedTime = getCurrentTime()
+            val bzip2DecompressedBlob = bzip2Decompress(bzip2CompressedBlob)
+            val bzip2DecompressedTime = getCurrentTime()
+
+            val bzip2CompressedSize = bzip2CompressedBlob.size / 1000F
+            sb.append(bzip2CompressedSize).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 compressedSize: $bzip2CompressedSize")
+
+            val bzip2CompressionRatio = calcCompressionRatio(bzip2CompressedSize, originalFileSizeInKB)
+            sb.append(bzip2CompressionRatio).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 compression ratio: $bzip2CompressionRatio")
+
+            val bzip2CompressionTime = bzip2CompressedTime - bzip2StartTime
+            sb.append(bzip2CompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 compressionTime: $bzip2CompressionTime")
+
+            val bzip2DecompressionTime = bzip2DecompressedTime - bzip2CompressedTime
+            sb.append(bzip2DecompressionTime).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 decompressionTime: $bzip2DecompressionTime")
+
+            val bzip2TotalTime = bzip2DecompressedTime - bzip2StartTime
+            sb.append(bzip2TotalTime).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 totalTime: $bzip2TotalTime")
+
+            val bzip2Result = calcResult(bzip2CompressionRatio, bzip2TotalTime)
+            sb.append(bzip2Result).append(SEPARATOR)
+            Logger.log(TAG, "Bzip2 result: $bzip2Result")
+
+            if (!Arrays.equals(fileBlob, bzip2DecompressedBlob)) throw Exception("Error in compression")
+
+
+            /**
+             *********************************************************
+             * Определение лучшего
+             *********************************************************
+             */
+            val maxResult = listOf(
+                    Triple("none", 0, 1f),
+                    Triple("lz4", 1, lz4Result),
+                    Triple("snappy", 2, snappyResult),
+                    Triple("bzip2", 3, bzip2Result)
+            )
+                    //.filter { it.third < 90f }
+                    .maxBy { it.third }
+
+            Logger.log(TAG, "Max result: $maxResult")
+
+            sb.append(maxResult?.third).append(SEPARATOR)
+            sb.append(maxResult?.first).append(SEPARATOR)
+            sb.append(maxResult?.second)
         }
     }
 
@@ -72,35 +228,18 @@ fun main() {
     resultFile.close()
 }
 
-/**
- * Тест производительности алгоритма LZ4
- */
-fun testLZ4(byteArray: ByteArray) {
-    Logger.log(TAG, "LZ4")
+private fun getCurrentTime() = System.currentTimeMillis()
 
-    val startTime = System.currentTimeMillis()
-    val compressedBlob = lz4Compress(byteArray)
-    val compressedTime = System.currentTimeMillis()
-    val decompressedBlob = lz4Decompress(compressedBlob)
-    val decompressedTime = System.currentTimeMillis()
+private fun calcCompressionRatio(compressedSize: Float, originalFileSizeInKB: Float): Float {
+    val ratio = originalFileSizeInKB / compressedSize
+    return Math.round(ratio * 100) / 100f
+}
 
-    val compressedSize = compressedBlob.size / 1000F
-    sb.append(compressedSize).append(SEPARATOR)
-    Logger.log(TAG, "LZ4 compressedSize: $compressedSize")
+private fun calcResult(compressionRatio: Float, totalTime: Long): Float {
 
-    val compressionTime = compressedTime - startTime
-    sb.append(compressionTime).append(SEPARATOR)
-    Logger.log(TAG, "LZ4 compressionTime: $compressionTime")
-
-    val decompressionTime = decompressedTime - compressedTime
-    sb.append(decompressionTime).append(SEPARATOR)
-    Logger.log(TAG, "LZ4 decompressionTime: $decompressionTime")
-
-    val totalTime = decompressedTime - startTime
-    sb.append(totalTime).append(SEPARATOR)
-    Logger.log(TAG, "LZ4 totalTime: $totalTime")
-
-    if (!Arrays.equals(byteArray, decompressedBlob)) throw Exception("Error in compression")
+    //val result = compressionRatio / if (totalTime == 0L) 1 else totalTime
+    val result = totalTime / if (compressionRatio <= 1F) totalTime.toFloat() else compressionRatio
+    return Math.round(result * 100) / 100f
 }
 
 fun lz4Compress(byteArray: ByteArray): ByteArray {
@@ -108,8 +247,8 @@ fun lz4Compress(byteArray: ByteArray): ByteArray {
 
     val resultOutputStream = ByteArrayOutputStream()
     val lz4OutputStream = CompressorStreamFactory().createCompressorOutputStream(
-        CompressorStreamFactory.LZ4_FRAMED,
-        resultOutputStream.buffered()
+            CompressorStreamFactory.LZ4_FRAMED,
+            resultOutputStream.buffered()
     )
 
     blobInputStream.use { input ->
@@ -124,8 +263,8 @@ fun lz4Compress(byteArray: ByteArray): ByteArray {
 fun lz4Decompress(compressedByteArray: ByteArray): ByteArray {
     val compressedOutputStream = ByteArrayInputStream(compressedByteArray).buffered()
     val lz4InputStream = CompressorStreamFactory().createCompressorInputStream(
-        CompressorStreamFactory.LZ4_FRAMED,
-        compressedOutputStream
+            CompressorStreamFactory.LZ4_FRAMED,
+            compressedOutputStream
     )
 
     val resultOutputStream = ByteArrayOutputStream()
@@ -139,45 +278,13 @@ fun lz4Decompress(compressedByteArray: ByteArray): ByteArray {
     return resultOutputStream.toByteArray()
 }
 
-
-/**
- * Тест производительности алгоритма Snappy
- */
-fun testSnappy(byteArray: ByteArray) {
-    Logger.log(TAG, "Snappy")
-
-    val startTime = System.currentTimeMillis()
-    val compressedBlob = snappyCompress(byteArray)
-    val compressedTime = System.currentTimeMillis()
-    val decompressedBlob = snappyDecompress(compressedBlob)
-    val decompressedTime = System.currentTimeMillis()
-
-    val compressedSize = compressedBlob.size / 1000F
-    sb.append(compressedSize).append(SEPARATOR)
-    Logger.log(TAG, "Snappy compressedSize: $compressedSize")
-
-    val compressionTime = compressedTime - startTime
-    sb.append(compressionTime).append(SEPARATOR)
-    Logger.log(TAG, "Snappy compressionTime: $compressionTime")
-
-    val decompressionTime = decompressedTime - compressedTime
-    sb.append(decompressionTime).append(SEPARATOR)
-    Logger.log(TAG, "Snappy decompressionTime: $decompressionTime")
-
-    val totalTime = decompressedTime - startTime
-    sb.append(totalTime).append(SEPARATOR)
-    Logger.log(TAG, "Snappy totalTime: $totalTime")
-
-    if (!Arrays.equals(byteArray, decompressedBlob)) throw Exception("Error in compression")
-}
-
 fun snappyCompress(byteArray: ByteArray): ByteArray {
     val blobInputStream = ByteArrayInputStream(byteArray)
 
     val resultOutputStream = ByteArrayOutputStream()
     val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
-        CompressorStreamFactory.SNAPPY_FRAMED,
-        resultOutputStream.buffered()
+            CompressorStreamFactory.SNAPPY_FRAMED,
+            resultOutputStream.buffered()
     )
 
     blobInputStream.use { input ->
@@ -192,8 +299,8 @@ fun snappyCompress(byteArray: ByteArray): ByteArray {
 fun snappyDecompress(compressedByteArray: ByteArray): ByteArray {
     val compressedOutputStream = ByteArrayInputStream(compressedByteArray).buffered()
     val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
-        CompressorStreamFactory.SNAPPY_FRAMED,
-        compressedOutputStream
+            CompressorStreamFactory.SNAPPY_FRAMED,
+            compressedOutputStream
     )
 
     val resultOutputStream = ByteArrayOutputStream()
@@ -207,45 +314,13 @@ fun snappyDecompress(compressedByteArray: ByteArray): ByteArray {
     return resultOutputStream.toByteArray()
 }
 
-
-/**
- * Тест производительности алгоритма Bzip2
- */
-fun testBzip2(byteArray: ByteArray) {
-    Logger.log(TAG, "Bzip2")
-
-    val startTime = System.currentTimeMillis()
-    val compressedBlob = bzip2Compress(byteArray)
-    val compressedTime = System.currentTimeMillis()
-    val decompressedBlob = bzip2Decompress(compressedBlob)
-    val decompressedTime = System.currentTimeMillis()
-
-    val compressedSize = compressedBlob.size / 1000F
-    sb.append(compressedSize).append(SEPARATOR)
-    Logger.log(TAG, "Bzip2 compressedSize: $compressedSize")
-
-    val compressionTime = compressedTime - startTime
-    sb.append(compressionTime).append(SEPARATOR)
-    Logger.log(TAG, "Bzip2 compressionTime: $compressionTime")
-
-    val decompressionTime = decompressedTime - compressedTime
-    sb.append(decompressionTime).append(SEPARATOR)
-    Logger.log(TAG, "Bzip2 decompressionTime: $decompressionTime")
-
-    val totalTime = decompressedTime - startTime
-    sb.append(totalTime).append(SEPARATOR)
-    Logger.log(TAG, "Bzip2 totalTime: $totalTime")
-
-    if (!Arrays.equals(byteArray, decompressedBlob)) throw Exception("Error in compression")
-}
-
 fun bzip2Compress(byteArray: ByteArray): ByteArray {
     val blobInputStream = ByteArrayInputStream(byteArray)
 
     val resultOutputStream = ByteArrayOutputStream()
     val bzip2OutputStream = CompressorStreamFactory().createCompressorOutputStream(
-        CompressorStreamFactory.BZIP2,
-        resultOutputStream.buffered()
+            CompressorStreamFactory.BZIP2,
+            resultOutputStream.buffered()
     )
 
     blobInputStream.use { input ->
@@ -260,8 +335,8 @@ fun bzip2Compress(byteArray: ByteArray): ByteArray {
 fun bzip2Decompress(compressedByteArray: ByteArray): ByteArray {
     val compressedOutputStream = ByteArrayInputStream(compressedByteArray).buffered()
     val bzip2InputStream = CompressorStreamFactory().createCompressorInputStream(
-        CompressorStreamFactory.BZIP2,
-        compressedOutputStream
+            CompressorStreamFactory.BZIP2,
+            compressedOutputStream
     )
 
     val resultOutputStream = ByteArrayOutputStream()

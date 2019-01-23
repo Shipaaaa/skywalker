@@ -1,3 +1,5 @@
+@file:Suppress("ConstantConditionIf")
+
 import core.utils.Logger
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import java.io.ByteArrayInputStream
@@ -16,7 +18,11 @@ private const val TAG = "SpeedTests"
 private const val TEST_DATA_PATH: String = "D:\\dataset"
 private const val RESULT_FILE_NAME = "speed_test.csv"
 private const val SEPARATOR = ','
+
 private const val NEED_ADD_HEADER = true
+private const val NEED_SHOW_COMPRESSION_TIME = false
+private const val NEED_SHOW_DECOMPRESSION_TIME = false
+
 private const val maxCountOfFiles = 50
 
 private val sb = StringBuilder()
@@ -26,7 +32,6 @@ fun main() {
 
     val resultFile = PrintWriter(File(RESULT_FILE_NAME))
 
-    @Suppress("ConstantConditionIf")
     if (NEED_ADD_HEADER) {
         sb.append("number").append(SEPARATOR)
         sb.append("name").append(SEPARATOR)
@@ -35,23 +40,23 @@ fun main() {
 
         sb.append("LZ4 size (KB)").append(SEPARATOR)
         sb.append("LZ4 compression ratio").append(SEPARATOR)
-        sb.append("LZ4 compression time").append(SEPARATOR)
-        sb.append("LZ4 decompression time").append(SEPARATOR)
+        if (NEED_SHOW_COMPRESSION_TIME) sb.append("LZ4 compression time").append(SEPARATOR)
+        if (NEED_SHOW_DECOMPRESSION_TIME) sb.append("LZ4 decompression time").append(SEPARATOR)
         sb.append("LZ4 total time").append(SEPARATOR)
         sb.append("LZ4 result").append(SEPARATOR)
 
 
         sb.append("Snappy size (KB)").append(SEPARATOR)
         sb.append("Snappy compression ratio").append(SEPARATOR)
-        sb.append("Snappy compression time").append(SEPARATOR)
-        sb.append("Snappy decompression time").append(SEPARATOR)
+        if (NEED_SHOW_COMPRESSION_TIME) sb.append("Snappy compression time").append(SEPARATOR)
+        if (NEED_SHOW_DECOMPRESSION_TIME) sb.append("Snappy decompression time").append(SEPARATOR)
         sb.append("Snappy total time").append(SEPARATOR)
         sb.append("Snappy result").append(SEPARATOR)
 
         sb.append("Bzip2 size (KB)").append(SEPARATOR)
         sb.append("Bzip2 compression ratio").append(SEPARATOR)
-        sb.append("Bzip2 compression time").append(SEPARATOR)
-        sb.append("Bzip2 decompression time").append(SEPARATOR)
+        if (NEED_SHOW_COMPRESSION_TIME) sb.append("Bzip2 compression time").append(SEPARATOR)
+        if (NEED_SHOW_DECOMPRESSION_TIME) sb.append("Bzip2 decompression time").append(SEPARATOR)
         sb.append("Bzip2 total time").append(SEPARATOR)
         sb.append("Bzip2 result").append(SEPARATOR)
 
@@ -104,18 +109,22 @@ fun main() {
             Logger.log(TAG, "LZ4 compression ratio: $lz4CompressionRatio")
 
             val lz4CompressionTime = lz4CompressedTime - lz4StartTime
-            sb.append(lz4CompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "LZ4 compressionTime: $lz4CompressionTime")
+            if (NEED_SHOW_COMPRESSION_TIME) sb.append(lz4CompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_COMPRESSION_TIME) Logger.log(TAG, "LZ4 compressionTime: $lz4CompressionTime")
 
             val lz4DecompressionTime = lz4DecompressedTime - lz4CompressedTime
-            sb.append(lz4DecompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "LZ4 decompressionTime: $lz4DecompressionTime")
+            if (NEED_SHOW_DECOMPRESSION_TIME) sb.append(lz4DecompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_DECOMPRESSION_TIME) Logger.log(TAG, "LZ4 decompressionTime: $lz4DecompressionTime")
 
             val lz4TotalTime = lz4DecompressedTime - lz4StartTime
             sb.append(lz4TotalTime).append(SEPARATOR)
             Logger.log(TAG, "LZ4 totalTime: $lz4TotalTime")
 
-            val lz4Result = calcResult(lz4CompressionRatio, lz4TotalTime)
+            val lz4Result = calcResult(
+                    compressedSize = lz4CompressedSize,
+                    compressionRatio = lz4CompressionRatio,
+                    totalTime = lz4TotalTime
+            )
             sb.append(lz4Result).append(SEPARATOR)
             Logger.log(TAG, "LZ4 result: $lz4Result")
 
@@ -144,18 +153,22 @@ fun main() {
             Logger.log(TAG, "Snappy compression ratio: $snappyCompressionRatio")
 
             val snappyCompressionTime = snappyCompressedTime - snappyStartTime
-            sb.append(snappyCompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "Snappy compressionTime: $snappyCompressionTime")
+            if (NEED_SHOW_COMPRESSION_TIME) sb.append(snappyCompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_COMPRESSION_TIME) Logger.log(TAG, "Snappy compressionTime: $snappyCompressionTime")
 
             val snappyDecompressionTime = snappyDecompressedTime - snappyCompressedTime
-            sb.append(snappyDecompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "Snappy decompressionTime: $snappyDecompressionTime")
+            if (NEED_SHOW_DECOMPRESSION_TIME) sb.append(snappyDecompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_DECOMPRESSION_TIME) Logger.log(TAG, "Snappy decompressionTime: $snappyDecompressionTime")
 
             val snappyTotalTime = snappyDecompressedTime - snappyStartTime
             sb.append(snappyTotalTime).append(SEPARATOR)
             Logger.log(TAG, "Snappy totalTime: $snappyTotalTime")
 
-            val snappyResult = calcResult(snappyCompressionRatio, snappyTotalTime)
+            val snappyResult = calcResult(
+                    compressedSize = snappyCompressedSize,
+                    compressionRatio = snappyCompressionRatio,
+                    totalTime = snappyTotalTime
+            )
             sb.append(snappyResult).append(SEPARATOR)
             Logger.log(TAG, "Snappy result: $snappyResult")
 
@@ -184,18 +197,22 @@ fun main() {
             Logger.log(TAG, "Bzip2 compression ratio: $bzip2CompressionRatio")
 
             val bzip2CompressionTime = bzip2CompressedTime - bzip2StartTime
-            sb.append(bzip2CompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "Bzip2 compressionTime: $bzip2CompressionTime")
+            if (NEED_SHOW_COMPRESSION_TIME) sb.append(bzip2CompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_COMPRESSION_TIME) Logger.log(TAG, "Bzip2 compressionTime: $bzip2CompressionTime")
 
             val bzip2DecompressionTime = bzip2DecompressedTime - bzip2CompressedTime
-            sb.append(bzip2DecompressionTime).append(SEPARATOR)
-            Logger.log(TAG, "Bzip2 decompressionTime: $bzip2DecompressionTime")
+            if (NEED_SHOW_DECOMPRESSION_TIME) sb.append(bzip2DecompressionTime).append(SEPARATOR)
+            if (NEED_SHOW_DECOMPRESSION_TIME) Logger.log(TAG, "Bzip2 decompressionTime: $bzip2DecompressionTime")
 
             val bzip2TotalTime = bzip2DecompressedTime - bzip2StartTime
             sb.append(bzip2TotalTime).append(SEPARATOR)
             Logger.log(TAG, "Bzip2 totalTime: $bzip2TotalTime")
 
-            val bzip2Result = calcResult(bzip2CompressionRatio, bzip2TotalTime)
+            val bzip2Result = calcResult(
+                    compressedSize = bzip2CompressedSize,
+                    compressionRatio = bzip2CompressionRatio,
+                    totalTime = bzip2TotalTime
+            )
             sb.append(bzip2Result).append(SEPARATOR)
             Logger.log(TAG, "Bzip2 result: $bzip2Result")
 
@@ -208,19 +225,20 @@ fun main() {
              *********************************************************
              */
             val maxResult = listOf(
-                    Triple("none", 0, 1f),
                     Triple("lz4", 1, lz4Result),
                     Triple("snappy", 2, snappyResult),
                     Triple("bzip2", 3, bzip2Result)
             )
-                    //.filter { it.third < 90f }
-                    .maxBy { it.third }
+                    .filter { it.third > 0f }
+                    .minBy { it.third }
+                    ?: Triple("none", 0, 0f)
+
 
             Logger.log(TAG, "Max result: $maxResult")
 
-            sb.append(maxResult?.third).append(SEPARATOR)
-            sb.append(maxResult?.first).append(SEPARATOR)
-            sb.append(maxResult?.second)
+            sb.append(maxResult.third).append(SEPARATOR)
+            sb.append(maxResult.first).append(SEPARATOR)
+            sb.append(maxResult.second)
         }
     }
 
@@ -235,10 +253,13 @@ private fun calcCompressionRatio(compressedSize: Float, originalFileSizeInKB: Fl
     return Math.round(ratio * 100) / 100f
 }
 
-private fun calcResult(compressionRatio: Float, totalTime: Long): Float {
+private fun calcResult(compressedSize: Float, compressionRatio: Float, totalTime: Long): Float {
 
     //val result = compressionRatio / if (totalTime == 0L) 1 else totalTime
-    val result = totalTime / if (compressionRatio <= 1F) totalTime.toFloat() else compressionRatio
+    //val result = totalTime / if (compressionRatio <= 1F) totalTime.toFloat() else compressionRatio
+    //return Mathath.round(result * 100) / 100f
+
+    val result = if (compressionRatio > 1) (totalTime * compressedSize) / 1000 else 0f
     return Math.round(result * 100) / 100f
 }
 

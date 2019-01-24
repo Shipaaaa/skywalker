@@ -23,7 +23,7 @@ private const val NEED_ADD_HEADER = true
 private const val NEED_SHOW_COMPRESSION_TIME = false
 private const val NEED_SHOW_DECOMPRESSION_TIME = false
 
-private const val maxCountOfFiles = 50
+private const val MAX_COUNT_OF_FILES = 50
 
 private val sb = StringBuilder()
 
@@ -70,7 +70,7 @@ fun main() {
 
     for (fileEntry in File(TEST_DATA_PATH).listFiles()) {
         if (fileEntry.isFile) {
-            if (fileNumber >= maxCountOfFiles) break
+            if (fileNumber >= MAX_COUNT_OF_FILES) break
             if (fileNumber != 0) sb.append('\n')
 
             sb.append(++fileNumber).append(SEPARATOR)

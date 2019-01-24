@@ -11,6 +11,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>skywalker-server</artifactId>
+    <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -34,9 +35,33 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>ServerStarterKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
+
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -53,6 +78,7 @@
                         </goals>
                     </execution>
                 </executions>
+
                 <configuration>
                     <jvmTarget>${java.version}</jvmTarget>
                 </configuration>

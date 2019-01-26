@@ -3,6 +3,7 @@ import data.repository.archive.ArchiveRepositoryImpl
 import data.repository.metadata.MetadataRepositoryImpl
 import data.repository.prediction.PredictionRepositoryImpl
 import domain.usecase.CacheUseCaseImpl
+import domain.usecase.PredictionUseCaseImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.json.GsonSerializer
@@ -72,6 +73,7 @@ class ClientInitializer {
 
         val cacheUseCase by lazy {
             CacheUseCaseImpl(
+                PredictionUseCaseImpl(),
                 PredictionRepositoryImpl(httpClient),
                 MetadataRepositoryImpl(ignite),
                 ArchiveRepositoryImpl(ignite)

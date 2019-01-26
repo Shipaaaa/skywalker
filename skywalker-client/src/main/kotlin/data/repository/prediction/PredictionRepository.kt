@@ -8,5 +8,6 @@ import domain.entity.FileEntity
  */
 interface PredictionRepository {
 
-    fun predictCompressionType(fileEntity: FileEntity): CompressionType?
+    fun predictCompressionType(sample: String): CompressionType?
+
 }

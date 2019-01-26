@@ -12,6 +12,7 @@ import java.io.IOException
  * Created by v.shipugin on 15/09/2018
  */
 class CacheUseCaseImpl(
+    private val predictionUseCase: PredictionUseCaseImpl,
     private val predictionRepository: PredictionRepository,
     private val metadataRepository: MetadataRepository,
     private val archiveRepository: ArchiveRepository
@@ -26,7 +27,8 @@ class CacheUseCaseImpl(
         val fileMetadata = metadataRepository.loadFileMetadata(fileEntity.name)
         if (fileMetadata != null) throw IllegalArgumentException("File ${fileEntity.name} already exist")
 
-        val compressionType = predictionRepository.predictCompressionType(fileEntity)
+        val fileSample = predictionUseCase.getSampleDataFromFile(fileEntity)
+        val compressionType = predictionRepository.predictCompressionType(fileSample)
             ?: throw NullPointerException("CompressionType not found")
 
         val metadata = FileMetadataEntity(fileEntity.name, compressionType, fileEntity.blob.size)
@@ -44,7 +46,8 @@ class CacheUseCaseImpl(
         metadataRepository.loadFileMetadata(fileEntity.name)
             ?: throw NullPointerException("File ${fileEntity.name} not found")
 
-        val compressionType = predictionRepository.predictCompressionType(fileEntity)
+        val fileSample = predictionUseCase.getSampleDataFromFile(fileEntity)
+        val compressionType = predictionRepository.predictCompressionType(fileSample)
             ?: throw NullPointerException("CompressionType not found")
 
         val metadata = FileMetadataEntity(fileEntity.name, compressionType, fileEntity.blob.size)

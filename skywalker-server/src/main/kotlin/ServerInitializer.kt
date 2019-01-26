@@ -29,18 +29,29 @@ class ServerInitializer {
         Logger.init(Configurations.ENABLE_LOGGING)
     }
 
+    /**
+     * Метод инифиализации Apache Ignite
+     */
     fun initIgnite() {
 
+        /**
+         * Конфигурация Apache Ignite
+         */
         val igniteCfg = IgniteConfiguration().apply {
             isPeerClassLoadingEnabled = true
         }
 
-
+        /**
+         * Конфигурация кеша метаинформации о сжатых файлах
+         */
         val metadataCacheCfg = CacheConfiguration<String, FileMetadataEntity>(METADATA_CACHE_NAME).apply {
             cacheMode = CacheMode.REPLICATED
             atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
+        /**
+         * Конфигурация сервиса кеширующего информацию о сжатых файлах
+         */
         val metadataServiceConfiguration = ServiceConfiguration().apply {
             name = MetadataServiceImpl.TAG
             cacheName = METADATA_CACHE_NAME
@@ -49,11 +60,17 @@ class ServerInitializer {
         }
 
 
+        /**
+         * Конфигурация кеша файлов
+         */
         val dataCacheCfg = CacheConfiguration<String, String>(DATA_CACHE_NAME).apply {
             cacheMode = CacheMode.REPLICATED
             atomicityMode = CacheAtomicityMode.ATOMIC
         }
 
+        /**
+         * Конфигурация сервиса кеширования файлов с предварительным их сжатием, использующий алгоритм сжатия Bzip2.
+         */
         val bZip2CacheServiceConfiguration = ServiceConfiguration().apply {
             name = BZip2CacheService.TAG
             cacheName = DATA_CACHE_NAME
@@ -61,6 +78,9 @@ class ServerInitializer {
             maxPerNodeCount = 1
         }
 
+        /**
+         * Конфигурация сервиса кеширования файлов с предварительным их сжатием, использующий алгоритм сжатия LZ4.
+         */
         val lz4CacheServiceConfiguration = ServiceConfiguration().apply {
             name = LZ4CacheService.TAG
             cacheName = DATA_CACHE_NAME
@@ -68,6 +88,9 @@ class ServerInitializer {
             maxPerNodeCount = 1
         }
 
+        /**
+         * Конфигурация сервиса кеширования файлов с предварительным их сжатием, использующий алгоритм сжатия Snappy.
+         */
         val snappyCacheServiceConfiguration = ServiceConfiguration().apply {
             name = SnappyCacheService.TAG
             cacheName = DATA_CACHE_NAME
@@ -75,6 +98,9 @@ class ServerInitializer {
             maxPerNodeCount = 1
         }
 
+        /**
+         * Запуск Apache Ignite
+         */
         ignite = Ignition.start(igniteCfg).apply {
             getOrCreateCache(metadataCacheCfg)
             getOrCreateCache(dataCacheCfg)

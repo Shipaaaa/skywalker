@@ -106,6 +106,7 @@ fun main() {
     }
 
     resultFile.close()
+    Logger.destroy()
 }
 
 private fun addHeader() {

@@ -68,6 +68,10 @@ class ClientInitializer {
         Ignition.stop(ignite.name(), false)
     }
 
+    fun destroyLogger() {
+        Logger.destroy()
+    }
+
     fun startApp() {
         val scanner by lazy { Scanner(System.`in`) }
 

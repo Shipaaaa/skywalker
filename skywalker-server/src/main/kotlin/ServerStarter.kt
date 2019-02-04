@@ -6,5 +6,6 @@ fun main(args: Array<String>) {
     with(ServerInitializer()) {
         initLogger()
         initIgnite()
+        destroyLogger()
     }
 }

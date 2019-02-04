@@ -116,4 +116,8 @@ class ServerInitializer {
             )
         }
     }
+
+    fun destroyLogger() {
+        Logger.destroy()
+    }
 }

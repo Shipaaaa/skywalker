@@ -79,7 +79,7 @@ class RestView(
             @Suppress("ConstantConditionIf")
             if (ENABLE_FILE_CONTENT_LOGGING) printBlob(String(fileEntity.blob))
         } catch (e: Exception) {
-            logError("Error: ${e.message}")
+            logError(e)
             call.respond(HttpStatusCode.BadRequest, ErrorApiResponse("${e.message}"))
         }
     }
@@ -113,7 +113,7 @@ class RestView(
             @Suppress("ConstantConditionIf")
             if (ENABLE_FILE_CONTENT_LOGGING) printBlob(String(fileEntity.blob))
         } catch (e: Exception) {
-            logError("Error: ${e.message}")
+            logError(e)
             call.respond(HttpStatusCode.BadRequest, ErrorApiResponse("${e.message}"))
         }
     }
@@ -141,7 +141,7 @@ class RestView(
             @Suppress("ConstantConditionIf")
             if (ENABLE_FILE_CONTENT_LOGGING) printBlob(String(file.fileEntity.blob))
         } catch (e: Exception) {
-            logError("Error: ${e.message}")
+            logError(e)
             call.respond(HttpStatusCode.BadRequest, ErrorApiResponse("${e.message}"))
         }
     }
@@ -162,7 +162,7 @@ class RestView(
 
             call.respond(ApiResponse("SUCCESS"))
         } catch (e: Exception) {
-            logError("Error: ${e.message}")
+            logError(e)
             call.respond(HttpStatusCode.BadRequest, ErrorApiResponse("${e.message}"))
         }
     }
@@ -185,8 +185,8 @@ class RestView(
         Logger.log(TAG, message)
     }
 
-    private fun logError(message: String) {
-        Logger.log(TAG, message)
+    private fun logError(exception: Exception) {
+        Logger.log(TAG, exception)
     }
 
     private fun printBlob(fileBlob: String) {
@@ -204,7 +204,7 @@ class RestView(
             when (part) {
                 is PartData.FileItem -> {
                     fileTitle = part.originalFileName
-                            ?: throw NullPointerException("File name not found")
+                        ?: throw NullPointerException("File name not found")
 
                     logMessage("part.originalFileName: $fileTitle")
                     val ext = File(fileTitle).extension

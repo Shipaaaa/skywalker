@@ -1,6 +1,7 @@
 package presentation.view
 
 import Configurations
+import core.utils.Logger
 import domain.entity.FileEntity
 import domain.usecase.CacheUseCase
 import presentation.model.MenuItem
@@ -18,10 +19,12 @@ class ConsoleView(
 ) : CacheView {
 
     companion object {
+        private const val TAG = "CacheView"
         private const val IS_TXT_DEBUG_ENABLED = Configurations.ENABLE_FILE_CONTENT_LOGGING
     }
 
     override fun start() {
+        Logger.log(TAG, "Start")
         showMessage("Hello!\nI'm Skywalker\n\n")
 
         showMessage(
@@ -53,9 +56,11 @@ class ConsoleView(
         }
 
         showMessage("Goodbye!\n\n")
+        Logger.log(TAG, "Finish")
     }
 
     private fun saveFile() {
+        Logger.log(TAG, "saveFile()")
         showMessage("\n|================================================|")
         showMessage("| You have chosen to save the file.")
         showMessage("| Enter file name:")
@@ -65,6 +70,7 @@ class ConsoleView(
         val filePath = scanner.next()
 
         showMessage("| Saving file: $fileName\n| ")
+        Logger.log(TAG, "Saving file: $fileName\n")
 
         try {
             val file = File(filePath)
@@ -73,10 +79,12 @@ class ConsoleView(
 
             cacheUseCase.saveFile(fileEntity)
             showMessage("| File: $fileName saved successfully")
+            Logger.log(TAG, "File: $fileName saved successfully")
 
             @Suppress("ConstantConditionIf")
             if (IS_TXT_DEBUG_ENABLED) printBlob(File(filePath).readText(Charsets.UTF_8))
         } catch (e: Exception) {
+            Logger.log(TAG, e)
             showError("| Error: ${e.message}")
         }
 
@@ -84,6 +92,7 @@ class ConsoleView(
     }
 
     private fun update() {
+        Logger.log(TAG, "update()")
         showMessage("\n|================================================|")
         showMessage("| You have chosen to update the file.")
         showMessage("| Enter file name:")
@@ -93,6 +102,7 @@ class ConsoleView(
         val filePath = scanner.next()
 
         showMessage("| Updating file: $fileName\n| ")
+        Logger.log(TAG, "Updating file: $fileName\n")
 
         try {
             val file = File(filePath)
@@ -101,10 +111,12 @@ class ConsoleView(
 
             cacheUseCase.updateFile(fileEntity)
             showMessage("| File: $fileName updated successfully")
+            Logger.log(TAG, "File: $fileName updated successfully")
 
             @Suppress("ConstantConditionIf")
             if (IS_TXT_DEBUG_ENABLED) printBlob(File(filePath).readText(Charsets.UTF_8))
         } catch (e: Exception) {
+            Logger.log(TAG, e)
             showError("| Error: ${e.message}")
         }
 
@@ -112,22 +124,26 @@ class ConsoleView(
     }
 
     private fun load() {
+        Logger.log(TAG, "load()")
         showMessage("\n|================================================|")
         showMessage("| You have chosen to load the file.")
         showMessage("| Enter file name:")
         val fileName = scanner.next()
 
         showMessage("| Loading file: $fileName\n| ")
+        Logger.log(TAG, "Loading file: $fileName\n")
 
         try {
             val file = cacheUseCase.loadFile(fileName)
             showMessage("| File name: ${file.fileMetadataEntity.fileName}")
             showMessage("| Full sie: ${file.fileMetadataEntity.fullSize}")
             showMessage("| Compression: ${file.fileMetadataEntity.compressionType}")
-
+            Logger.log(TAG, "File: $fileName loaded successfully")
+            
             @Suppress("ConstantConditionIf")
             if (IS_TXT_DEBUG_ENABLED) printBlob(String(file.fileEntity.blob))
         } catch (e: Exception) {
+            Logger.log(TAG, e)
             showError("| Error: ${e.message}")
         }
 
@@ -135,6 +151,7 @@ class ConsoleView(
     }
 
     private fun delete() {
+        Logger.log(TAG, "delete()")
         showMessage("\n|================================================|")
         showMessage("| You have chosen to delete the file.")
         showMessage("| Enter file name:")
@@ -142,11 +159,14 @@ class ConsoleView(
         val fileName = scanner.next()
 
         showMessage("| Deleting file: $fileName\n| ")
+        Logger.log(TAG, "Deleting file: $fileName\n")
 
         try {
             cacheUseCase.deleteFile(fileName)
             showMessage("| File: $fileName deleted successfully")
+            Logger.log(TAG, "File: $fileName deleted successfully")
         } catch (e: Exception) {
+            Logger.log(TAG, e)
             showError("| Error: ${e.message}")
         }
 
@@ -154,6 +174,7 @@ class ConsoleView(
     }
 
     private fun getAllInfo() {
+        Logger.log(TAG, "getAllInfo()")
         showMessage("\n|================================================|")
         showMessage("| You have chosen to get all information.")
         showMessage("|================================================|")
@@ -161,7 +182,9 @@ class ConsoleView(
         val filesMetadata = cacheUseCase.loadAllInfo()
         if (filesMetadata.isEmpty()) {
             showMessage("| Cache is empty")
+            Logger.log(TAG, "Cache is empty")
         } else {
+            Logger.log(TAG, "All info loaded successfully")
             filesMetadata.forEachIndexed { index, entity ->
                 showMessage("| Index: $index")
                 showMessage("| File name: ${entity.fileName}")

@@ -10,5 +10,6 @@ fun main(args: Array<String>) {
         startApp()
         destroyHttpClient()
         destroyIgnite()
+        destroyLogger()
     }
 }

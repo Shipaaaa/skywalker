@@ -61,8 +61,11 @@ class CacheUseCaseImpl(
         val fileMetadata = metadataRepository.loadFileMetadata(fileName)
             ?: throw NullPointerException("File $fileName not found")
 
-        val fileEntity = archiveRepository.loadFileWithDecompression(fileName, fileMetadata.compressionType)
-
+        val fileEntity = archiveRepository.loadFileWithDecompression(
+            fileName = fileName,
+            compressionType = fileMetadata.compressionType,
+            originalSize = fileMetadata.fullSize
+        )
         return LoadingFileResult(fileMetadata, fileEntity)
     }
 

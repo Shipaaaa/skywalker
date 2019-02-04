@@ -17,13 +17,13 @@ object Configurations {
 
 
     val SIZE_OF_SAMPLE_IN_KB =
-        System.getenv("SKYWALKER_CLIENT_PREDICTION_SIZE_OF_SAMPLE_IN_KB")?.toIntOrNull() ?: 2000
+        System.getenv("SKYWALKER_CLIENT_PREDICTION_SIZE_OF_SAMPLE_IN_KB")?.toIntOrNull() ?: 750
     val COUNT_OF_BLOCKS_FOR_SAMPLE =
-        System.getenv("SKYWALKER_CLIENT_PREDICTION_COUNT_OF_BLOCKS_FOR_SAMPLE")?.toIntOrNull() ?: 10
+        System.getenv("SKYWALKER_CLIENT_PREDICTION_COUNT_OF_BLOCKS_FOR_SAMPLE")?.toIntOrNull() ?: 30
     val ENABLE_COUNT_OF_BLOCKS =
-        System.getenv("SKYWALKER_CLIENT_PREDICTION_ENABLE_COUNT_OF_BLOCKS")?.toBoolean() ?: false
+        System.getenv("SKYWALKER_CLIENT_PREDICTION_ENABLE_COUNT_OF_BLOCKS")?.toBoolean() ?: true
     val SIZE_OF_BLOCKS_IN_KB =
-        System.getenv("SKYWALKER_CLIENT_PREDICTION_SIZE_OF_BLOCKS_IN_KB")?.toIntOrNull() ?: 200
+        System.getenv("SKYWALKER_CLIENT_PREDICTION_SIZE_OF_BLOCKS_IN_KB")?.toIntOrNull() ?: 25
 
 
     val PREDICTION_SERVICE_URL = System.getenv("SKYWALKER_CLIENT_PREDICTION_SERVICE_URL")

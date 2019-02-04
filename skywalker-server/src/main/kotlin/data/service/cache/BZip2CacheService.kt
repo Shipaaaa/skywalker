@@ -24,8 +24,8 @@ class BZip2CacheService : BaseCacheService() {
         )
 
         blobInputStream.use { input ->
-            bzip2OutputStream.use { snappyOutput ->
-                input.copyTo(snappyOutput)
+            bzip2OutputStream.use { bzip2Output ->
+                input.copyTo(bzip2Output)
             }
         }
 
@@ -35,8 +35,8 @@ class BZip2CacheService : BaseCacheService() {
     }
 
     @Throws(NullPointerException::class)
-    override fun loadFile(fileName: String): FileEntity {
-        val compressedFile = super.loadFile(fileName)
+    override fun loadFile(fileName: String, originalSize: Int): FileEntity {
+        val compressedFile = super.loadFile(fileName, originalSize)
 
         val compressedOutputStream = ByteArrayInputStream(compressedFile.blob).buffered()
         val bzip2InputStream = CompressorStreamFactory().createCompressorInputStream(
@@ -46,9 +46,9 @@ class BZip2CacheService : BaseCacheService() {
 
         val resultOutputStream = ByteArrayOutputStream()
 
-        bzip2InputStream.use { snappyInput ->
+        bzip2InputStream.use { bzip2Input ->
             resultOutputStream.use { output ->
-                snappyInput.copyTo(output)
+                bzip2Input.copyTo(output)
             }
         }
 

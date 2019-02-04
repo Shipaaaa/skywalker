@@ -10,7 +10,7 @@ interface ArchiveRepository {
 
     fun saveFileWithCompression(file: FileEntity, compressionType: CompressionType)
 
-    fun loadFileWithDecompression(fileName: String, compressionType: CompressionType): FileEntity
+    fun loadFileWithDecompression(fileName: String, compressionType: CompressionType, originalSize: Int): FileEntity
 
     fun deleteFile(fileName: String, compressionType: CompressionType)
 }

@@ -3,7 +3,9 @@
 import core.utils.Logger
 import domain.entity.FileEntity
 import domain.usecase.PredictionUseCaseImpl
+import net.jpountz.lz4.LZ4Factory
 import org.apache.commons.compress.compressors.CompressorStreamFactory
+import org.xerial.snappy.Snappy
 import java.io.*
 import java.nio.file.Files
 import java.util.*
@@ -15,7 +17,7 @@ import java.util.*
 
 private const val TAG = "SpeedTests"
 private const val TEST_DATA_PATH: String = "D:\\dataset"
-private const val RESULT_FILE_NAME = "speed_test.csv"
+private const val RESULT_FILE_NAME = "speed_test_2.csv"
 private const val SEPARATOR = ','
 
 private const val NEED_APPEND = true
@@ -25,12 +27,14 @@ private const val NEED_CALC_SAMPLE = true
 private const val NEED_SHOW_COMPRESSION_TIME = true
 private const val NEED_SHOW_DECOMPRESSION_TIME = true
 
-private const val FIRST_FILE_NUMBER = 1001
-private const val LAST_FILE_NUMBER = 3000
+private const val FIRST_FILE_NUMBER = 1
+private const val LAST_FILE_NUMBER = 10300
 
 private val sb = StringBuilder()
 
 private val predictionUseCase = PredictionUseCaseImpl()
+
+private val lz4Factory = LZ4Factory.fastestInstance()
 
 fun main() {
     Logger.init(true)
@@ -41,7 +45,15 @@ fun main() {
 
     var fileNumber = 0
 
-    for (fileEntry in File(TEST_DATA_PATH).listFiles()) {
+    val files = File(TEST_DATA_PATH).listFiles().toList()
+    Collections.sort<File>(
+        files,
+        Collections.reverseOrder { f1, f2 ->
+            f1.length().compareTo(f2.length())
+        }
+    )
+
+    for (fileEntry in files.drop(1)) {
         if (fileEntry.isFile) {
             fileNumber++
             if (fileNumber < FIRST_FILE_NUMBER) continue
@@ -67,7 +79,6 @@ fun main() {
             val originalFileSizeInKB = fileBlob.size / 1000F
             sb.append(originalFileSizeInKB).append(SEPARATOR)
             Logger.log(TAG, "File size: $originalFileSizeInKB")
-
 
             val lz4Result = testLZ4(fileBlob, originalFileSizeInKB)
             val snappyResult = testSnappy(fileBlob, originalFileSizeInKB)
@@ -144,7 +155,7 @@ private fun testLZ4(fileBlob: ByteArray, originalFileSizeInKB: Float): Float {
     val lz4StartTime = getCurrentTime()
     val lz4CompressedBlob = lz4Compress(fileBlob)
     val lz4CompressedTime = getCurrentTime()
-    val lz4DecompressedBlob = lz4Decompress(lz4CompressedBlob)
+    val lz4DecompressedBlob = lz4Decompress(lz4CompressedBlob, fileBlob.size)
     val lz4DecompressedTime = getCurrentTime()
 
     val lz4CompressedSize = lz4CompressedBlob.size / 1000F
@@ -280,76 +291,16 @@ private fun calcResult(compressedSize: Float, compressionRatio: Float, totalTime
 }
 
 fun lz4Compress(byteArray: ByteArray): ByteArray {
-    val blobInputStream = ByteArrayInputStream(byteArray)
-
-    val resultOutputStream = ByteArrayOutputStream()
-    val lz4OutputStream = CompressorStreamFactory().createCompressorOutputStream(
-        CompressorStreamFactory.LZ4_FRAMED,
-        resultOutputStream.buffered()
-    )
-
-    blobInputStream.use { input ->
-        lz4OutputStream.use { snappyOutput ->
-            input.copyTo(snappyOutput)
-        }
-    }
-
-    return resultOutputStream.toByteArray()
+    return lz4Factory.fastCompressor().compress(byteArray)
 }
 
-fun lz4Decompress(compressedByteArray: ByteArray): ByteArray {
-    val compressedOutputStream = ByteArrayInputStream(compressedByteArray).buffered()
-    val lz4InputStream = CompressorStreamFactory().createCompressorInputStream(
-        CompressorStreamFactory.LZ4_FRAMED,
-        compressedOutputStream
-    )
-
-    val resultOutputStream = ByteArrayOutputStream()
-
-    lz4InputStream.use { snappyInput ->
-        resultOutputStream.use { output ->
-            snappyInput.copyTo(output)
-        }
-    }
-
-    return resultOutputStream.toByteArray()
+fun lz4Decompress(compressedByteArray: ByteArray, originalSize: Int): ByteArray {
+    return lz4Factory.fastDecompressor().decompress(compressedByteArray, originalSize)
 }
 
-fun snappyCompress(byteArray: ByteArray): ByteArray {
-    val blobInputStream = ByteArrayInputStream(byteArray)
+fun snappyCompress(byteArray: ByteArray): ByteArray = Snappy.compress(byteArray)
 
-    val resultOutputStream = ByteArrayOutputStream()
-    val snappyOutputStream = CompressorStreamFactory().createCompressorOutputStream(
-        CompressorStreamFactory.SNAPPY_FRAMED,
-        resultOutputStream.buffered()
-    )
-
-    blobInputStream.use { input ->
-        snappyOutputStream.use { snappyOutput ->
-            input.copyTo(snappyOutput)
-        }
-    }
-
-    return resultOutputStream.toByteArray()
-}
-
-fun snappyDecompress(compressedByteArray: ByteArray): ByteArray {
-    val compressedOutputStream = ByteArrayInputStream(compressedByteArray).buffered()
-    val snappyInputStream = CompressorStreamFactory().createCompressorInputStream(
-        CompressorStreamFactory.SNAPPY_FRAMED,
-        compressedOutputStream
-    )
-
-    val resultOutputStream = ByteArrayOutputStream()
-
-    snappyInputStream.use { snappyInput ->
-        resultOutputStream.use { output ->
-            snappyInput.copyTo(output)
-        }
-    }
-
-    return resultOutputStream.toByteArray()
-}
+fun snappyDecompress(compressedByteArray: ByteArray): ByteArray = Snappy.uncompress(compressedByteArray)
 
 fun bzip2Compress(byteArray: ByteArray): ByteArray {
     val blobInputStream = ByteArrayInputStream(byteArray)
@@ -361,8 +312,8 @@ fun bzip2Compress(byteArray: ByteArray): ByteArray {
     )
 
     blobInputStream.use { input ->
-        bzip2OutputStream.use { snappyOutput ->
-            input.copyTo(snappyOutput)
+        bzip2OutputStream.use { bzip2Output ->
+            input.copyTo(bzip2Output)
         }
     }
 
@@ -378,9 +329,9 @@ fun bzip2Decompress(compressedByteArray: ByteArray): ByteArray {
 
     val resultOutputStream = ByteArrayOutputStream()
 
-    bzip2InputStream.use { snappyInput ->
+    bzip2InputStream.use { bzip2Input ->
         resultOutputStream.use { output ->
-            snappyInput.copyTo(output)
+            bzip2Input.copyTo(output)
         }
     }
 

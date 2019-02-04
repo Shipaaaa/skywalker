@@ -41,7 +41,7 @@ abstract class BaseCacheService : CacheService {
     }
 
     @Throws(NullPointerException::class)
-    override fun loadFile(fileName: String): FileEntity {
+    override fun loadFile(fileName: String, originalSize: Int): FileEntity {
         return cache
             .get(fileName)
             ?.let { Base64.getDecoder().decode(it) }

@@ -10,4 +10,4 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 5000
 
-CMD ["python", "prediction_1.py"]
+CMD ["python", "prediction.py"]

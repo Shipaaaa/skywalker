@@ -2,14 +2,16 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 import base64
 import numpy as np
+import tensorflow as tf
 from keras.models import load_model
 
 
 app = Flask(__name__)
 api = Api(app)
-model = None
 
-def init():
+def init_model():
+    global graph
+    graph = tf.get_default_graph()
     global model
     model = load_model('./models/model_k_2_1.h5')
     print("model loaded")
@@ -37,8 +39,7 @@ class PredictController(Resource):
          app.logger.info("int_sample_data type: " + str(type(int_sample_data)))
          app.logger.info(int_sample_data)
 
-         int_sample_data_list = []
-         int_sample_data_list.append(int_sample_data)
+         int_sample_data_list = [int_sample_data]
          samples = np.array(int_sample_data_list)
          app.logger.info("samples type: " + str(type(samples)))
          app.logger.info(samples.shape)
@@ -53,37 +54,48 @@ class PredictController(Resource):
 
 
 class PredictModel(PredictController):
-    global model
 
     def predictMethod(self, vectorize_samples):
-         app.logger.info("Model.predictMethod(self, vectorize_samples)")
+        app.logger.info("Model.predictMethod(self, vectorize_samples)")
 
-         compressionTypes = {
+        compression_types = {
             0 : 'NONE',
             1 : 'LZ4',
             2 : 'BZIP2',
             3 : 'SNAPPY'
-         }
+        }
 
-         app.logger.info(type(vectorize_samples))
+        app.logger.info(type(vectorize_samples))
 
-         vectorize_samples_len = len(vectorize_samples)
-         app.logger.info("vectorize_samples_len: " + str(vectorize_samples_len))
+        vectorize_samples_len = len(vectorize_samples)
+        app.logger.info("vectorize_samples_len: " + str(vectorize_samples_len))
 
-         predictions = model.predict(vectorize_samples)
-         app.logger.info("predictions: " + str(predictions))
+        with graph.as_default():
+            predictions  = model.predict(vectorize_samples)
 
-         compressionType = compressionTypes[np.argmax(predictions[0])]
+        app.logger.info("predictions: " + str(predictions))
 
-         app.logger.info(str(compressionType))
-         return compressionType
+        compression_type = compression_types[np.argmax(predictions[0])]
+
+        app.logger.info(str(compression_type))
+        return compression_type
 
 api.add_resource(PredictModel, '/skywalker/predict')
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    app.logger.error('Server Error: %s', (error))
+    return "{'compression_type': none}'", 500
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    app.logger.error('Unhandled Exception: %s', (e))
+    return "{'compression_type': none}'", 500
 
 if __name__ == '__main__':
     print((
         "* Loading Keras model and Flask starting server... "
         "please wait until server has fully started"
     ))
-    init()
+    init_model()
     app.run(host='0.0.0.0', port=5000, debug=True)

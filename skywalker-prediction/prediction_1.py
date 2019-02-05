@@ -6,11 +6,12 @@ from keras.models import load_model
 
 
 app = Flask(__name__)
+app.debug = True
 model = None
 
 def init_model():
     global model
-    model = load_model('models/model_k_2_1.h5')
+    model = load_model('./models/model_k_2_1.h5')
     print("init_model inited")
 
 def vectorize_sequences(sequences, dimension):
@@ -33,8 +34,7 @@ def predict():
     app.logger.info("int_sample_data type: " + str(type(int_sample_data)))
     app.logger.info(int_sample_data)
 
-    int_sample_data_list = []
-    int_sample_data_list.append(int_sample_data)
+    int_sample_data_list = [int_sample_data]
     samples = np.array(int_sample_data_list)
     app.logger.info("samples type: " + str(type(samples)))
     app.logger.info(samples.shape)
@@ -57,7 +57,9 @@ def predict():
     vectorize_samples_len = len(vectorize_samples)
     app.logger.info("vectorize_samples_len: " + str(vectorize_samples_len))
 
+    global model
     predictions = model.predict(vectorize_samples)
+    app.logger.info("predicticted")
     app.logger.info("predictions: " + str(predictions))
 
     compressionType = compressionTypes[np.argmax(predictions[0])]
@@ -66,6 +68,15 @@ def predict():
 
     return flask.jsonify({'compression_type': compressionType})
 
+@app.errorhandler(500)
+def internal_server_error(error):
+    app.logger.error('Server Error: %s', (error))
+    return '{error}', 500
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    app.logger.error('Unhandled Exception: %s', (e))
+    return '{error}', 500
 
 if __name__ == "__main__":
     print((

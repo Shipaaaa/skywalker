@@ -5,7 +5,7 @@ import core.utils.Logger
 import domain.entity.FileEntity
 import java.util.*
 
-class PredictionUseCaseImpl {
+class PredictionUseCaseImpl : PredictionUseCase {
 
     companion object {
         private const val TAG = "PredictionUseCaseImpl"
@@ -18,7 +18,7 @@ class PredictionUseCaseImpl {
         private val SIZE_OF_SAMPLE_IN_KB = Configurations.SIZE_OF_SAMPLE_IN_KB
     }
 
-    fun getSampleDataFromFile(fileEntity: FileEntity): String {
+    override fun getSampleDataFromFile(fileEntity: FileEntity): String {
         val fileBytes = fileEntity.blob
 
         val sizeDiff = SIZE_OF_SAMPLE_IN_KB - fileBytes.size

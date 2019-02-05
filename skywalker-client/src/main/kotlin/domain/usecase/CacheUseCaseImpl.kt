@@ -12,7 +12,7 @@ import java.io.IOException
  * Created by v.shipugin on 15/09/2018
  */
 class CacheUseCaseImpl(
-    private val predictionUseCase: PredictionUseCaseImpl,
+    private val predictionUseCase: PredictionUseCase,
     private val predictionRepository: PredictionRepository,
     private val metadataRepository: MetadataRepository,
     private val archiveRepository: ArchiveRepository

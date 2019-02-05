@@ -1,2 +1,5 @@
 flask
 Flask-Restful
+numpy
+tensorflow
+keras

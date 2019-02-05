@@ -61,8 +61,8 @@ class PredictModel(PredictController):
         compression_types = {
             0 : 'NONE',
             1 : 'LZ4',
-            2 : 'BZIP2',
-            3 : 'SNAPPY'
+            2 : 'SNAPPY',
+            3 : 'BZIP2'
         }
 
         app.logger.info(type(vectorize_samples))

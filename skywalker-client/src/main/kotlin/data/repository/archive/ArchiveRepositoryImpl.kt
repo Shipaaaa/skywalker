@@ -1,9 +1,6 @@
 package data.repository.archive
 
-import data.service.cache.BZip2CacheService
-import data.service.cache.CacheService
-import data.service.cache.LZ4CacheService
-import data.service.cache.SnappyCacheService
+import data.service.cache.*
 import domain.entity.CompressionType
 import domain.entity.FileEntity
 import org.apache.ignite.Ignite
@@ -27,6 +24,7 @@ class ArchiveRepositoryImpl(private val ignite: Ignite) : ArchiveRepository {
 
     private fun getServiceProxyByCompressionType(compressionType: CompressionType): CacheService {
         val serviceName = when (compressionType) {
+            CompressionType.NONE -> ClearCacheService.TAG
             CompressionType.LZ4 -> LZ4CacheService.TAG
             CompressionType.BZIP2 -> BZip2CacheService.TAG
             CompressionType.SNAPPY -> SnappyCacheService.TAG

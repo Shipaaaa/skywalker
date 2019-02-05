@@ -1,5 +1,6 @@
 import core.utils.Logger
 import data.service.cache.BZip2CacheService
+import data.service.cache.ClearCacheService
 import data.service.cache.LZ4CacheService
 import data.service.cache.SnappyCacheService
 import data.service.metadata.MetadataServiceImpl
@@ -69,12 +70,12 @@ class ServerInitializer {
         }
 
         /**
-         * Конфигурация сервиса кеширования файлов с предварительным их сжатием, использующий алгоритм сжатия Bzip2.
+         * Конфигурация сервиса кеширования файлов без их сжатия.
          */
-        val bZip2CacheServiceConfiguration = ServiceConfiguration().apply {
-            name = BZip2CacheService.TAG
+        val clearCacheServiceConfiguration = ServiceConfiguration().apply {
+            name = ClearCacheService.TAG
             cacheName = DATA_CACHE_NAME
-            service = BZip2CacheService()
+            service = ClearCacheService()
             maxPerNodeCount = 1
         }
 
@@ -99,6 +100,16 @@ class ServerInitializer {
         }
 
         /**
+         * Конфигурация сервиса кеширования файлов с предварительным их сжатием, использующий алгоритм сжатия Bzip2.
+         */
+        val bZip2CacheServiceConfiguration = ServiceConfiguration().apply {
+            name = BZip2CacheService.TAG
+            cacheName = DATA_CACHE_NAME
+            service = BZip2CacheService()
+            maxPerNodeCount = 1
+        }
+
+        /**
          * Запуск Apache Ignite
          */
         ignite = Ignition.start(igniteCfg).apply {
@@ -109,9 +120,10 @@ class ServerInitializer {
                 listOf(
                     metadataServiceConfiguration,
 
-                    bZip2CacheServiceConfiguration,
+                    clearCacheServiceConfiguration,
                     lz4CacheServiceConfiguration,
-                    snappyCacheServiceConfiguration
+                    snappyCacheServiceConfiguration,
+                    bZip2CacheServiceConfiguration
                 )
             )
         }
